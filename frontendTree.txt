@@ -1,0 +1,20 @@
+frontend/src
+├── App.vue
+├── components
+│   ├── Board
+│   │   ├── Board.vue
+│   │   ├── BoardEnroll.vue
+│   │   ├── BoardList.vue
+│   │   └── BoardUpdate.vue
+│   ├── HelloWorld.vue
+│   └── Login.vue
+├── main.js
+├── plugins
+│   └── bootstrap-vue.js
+├── router
+│   └── index.js
+├── store.js
+└── views
+    └── Main.vue
+
+5 directories, 12 files
