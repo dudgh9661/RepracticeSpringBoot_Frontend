@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-form @submit="onSubmit" @delete="onDelete">
+    <b-form @submit="onSubmit">
       <b-form-group id="input-group-1" label="게시물 번호" label-for="input-id">
         <b-form-input
           id="input-1d"
@@ -48,13 +48,14 @@
       </b-form-group>
 
       <b-form-group id="input-group-6" label="파일" label-for="input-content">
-        <b-form-file v-model="file" ref="file-input" class="mt-3" plain></b-form-file>
-        <div class="mt-3">선택된 파일 : <b>{{file ? file.name : ''}}</b></div>
+        <b-form-file v-model="newFile" ref="file-input" class="mt-3" plain></b-form-file>
+        <div v-if="newFile !== null" class="mt-3">업로드된 파일 : <b>{{newFile ? newFile.name : ''}}</b></div>
+        <div v-if="newFile === null" class="mt-3">업로드된 파일 : <b>{{oldFile ? oldFile.originFileName : ''}}</b></div>
       </b-form-group>
       <b-button @click="clearFiles" class="mr-2">파일 지우기</b-button>
 
       <b-button type="submit" variant="primary">수정</b-button>
-      <b-button type="delete" variant="danger">삭제</b-button>
+      <b-button @click="onDelete" type="delete" variant="danger">삭제</b-button>
       <b-button href="/">취소</b-button>
     </b-form>
   </div>
@@ -72,9 +73,10 @@ export default {
                 author: '',
                 password: '',
                 content: '',
-                title: ''
+                title: '',
             },
-            file: null,
+            newFile: null,
+            oldFile: null
         }
     },
     created() {        
@@ -86,6 +88,7 @@ export default {
             this.boardData.title = res.data.title
             this.boardData.author = res.data.author
             this.boardData.content = res.data.content
+            this.oldFile = res.data.file
         }).catch( function() {
             console.log('게시판 업데이트 페이지에 쓸 정보 불러오기 실패')
         })
@@ -93,15 +96,13 @@ export default {
     methods: {
         onSubmit (event) {
           event.preventDefault()
-          //1.  form 정보를 API로 보낸다.
-          
           let dataToJson = JSON.stringify(this.boardData)
           let blob = new Blob([dataToJson], {
             type: 'application/json'
           })
           let formData = new FormData()
           formData.append('data', blob)
-          formData.append('file', this.file)
+          formData.append('file', this.newFile)
 
           this.$axios.put(`http://localhost:8080/api/v1/posts/${this.boardId}`, formData, {
           }).then( function() {
@@ -114,14 +115,18 @@ export default {
         },
         onDelete (event) {
           event.preventDefault()
-          this.$axios.delete(`http://localhost:8080/api/v1/posts/${this.form.id}`,{                
-          }).then( () => {                
+          this.$axios.delete(`http://localhost:8080/api/v1/posts/${this.boardData.id}`,{                
+          }).then( () => {
+            console.log('게시판 삭제 성공')
+            window.location.href = '/'
           }).catch( (error) => {
               console.log('게시판 삭제 실패', error)
           })
         },
         clearFiles () {
           this.$refs['file-input'].reset()
+          this.newFile = null
+          this.oldFile = null
         }
     }
 }

@@ -39,7 +39,7 @@
           disabled
         ></b-form-textarea>
       </b-form-group>
-      <div v-if="responseFile" class="mt-3"> 업로드된 파일 : <b>{{ responseFile ? responseFile.originFileName : '' }}</b></div>
+      <div v-if="file" class="mt-3"> 업로드된 파일 : <span v-b-hover="handleHover"><span :class="isHovered ? 'text-primary' : ''"><b @click="download">{{ file ? file.originFileName : '' }}</b></span></span></div>
 
       <b-button href="/">홈으로</b-button>
     </b-form>
@@ -52,7 +52,8 @@ export default {
         return {
           boardId: this.$route.params.id,
           boardData: {},
-          responseFile: {}
+          file: {},
+          isHovered: false
         }
     },
     created () {
@@ -60,11 +61,44 @@ export default {
         this.$axios.get(`http://localhost:8080/api/v1/posts/${this.boardId}`, {                      
         }).then( res => {
             this.boardData = res.data
-            this.responseFile = this.boardData.responseFile
+            this.file = this.boardData.file
             console.log(this.$data)
         }).catch( error => {
             console.log('게시물을 불러오지 못했습니다.', error)
         })
+    },
+    methods: {
+      download () {
+        this.$axios.get(`http://localhost:8080/api/v1/posts/download/${this.boardId}`, {
+          responseType: 'blob'
+        }).then( res => {
+          let blob = new Blob([res.data], {type: res.headers['content-type']})
+          console.log('파일 데이터 받아오기 성공 ::: ', blob)
+          let fileName = this.file.originFileName
+          let link = document.createElement('a')
+          link.href = window.URL.createObjectURL(blob)
+          link.target = '_self'
+          if (fileName) link.download = fileName
+          link.click()
+          link.remove()
+        }).catch(  error =>  {
+          console.log('파일 다운로드 실패 ::: ', error)
+          alert('파일 다운로드에 실패했습니다. 다시 시도해주세요.')
+        })
+      },
+      getFileName (contentDisposition) {
+        let fileName = contentDisposition.split(';')
+        .filter((ele) => {
+          return ele.indexOf('fileName') > -1
+        })
+        .map ( (ele) => {
+          return ele.replace(/"/g, '').split('=')[1]
+        })
+        return fileName[0] ? fileName[0] : null
+      },
+      handleHover(hovered) {
+        this.isHovered = hovered
+      }
     }
 }
 </script>
