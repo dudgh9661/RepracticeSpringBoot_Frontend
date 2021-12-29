@@ -40,7 +40,7 @@
 
       <b-form-group id="input-group-6" label="파일" label-for="input-content">
         <b-form-file v-model="file" class="mt-3" plain></b-form-file>
-        <div class="mt-3">선택된 파일 : {{file ? file.name : ''}}</div>
+        <div class="mt-3">선택된 파일 : <b>{{file ? file.name : ''}}</b></div>
       </b-form-group>
       
       <b-button type="submit" variant="primary">등록</b-button>
@@ -64,6 +64,7 @@ export default {
         }
     },
     methods: {
+        // 게시글 전송 함수
         onSubmit (event) {
           event.preventDefault()
           
@@ -76,6 +77,7 @@ export default {
           let formData = new FormData()
           formData.append('data', blob)
           formData.append('file', this.file)
+          console.log('file data ::: ', this.file)
             this.$axios.post('http://localhost:8080/api/v1/posts', formData, {
             }).then( response => {          
               console.log('게시판 글 등록 성공', response)              
