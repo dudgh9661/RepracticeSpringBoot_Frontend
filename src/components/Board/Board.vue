@@ -39,7 +39,14 @@
           disabled
         ></b-form-textarea>
       </b-form-group>
-      <div v-if="file" class="mt-3"> 업로드된 파일 : <span v-b-hover="handleHover"><span :class="isHovered ? 'text-primary' : ''"><b @click="download">{{ file ? file.originFileName : '' }}</b></span></span></div>
+      <div v-if="files.length > 0" class="mt-3"> 업로드된 파일
+        <div v-for="(file, idx) in files" :key="idx">
+          <b>{{file.originFileName}}</b>
+          <span :class="isHovered[idx] ? 'text-primary' : ''" @mouseover="handleHover(idx,true)" @mouseleave="handleHover(idx,false)" @click="download(file)">
+           다운로드
+          </span>
+        </div>
+      </div>
 
       <b-button href="/">홈으로</b-button>
     </b-form>
@@ -52,8 +59,8 @@ export default {
         return {
           boardId: this.$route.params.id,
           boardData: {},
-          file: {},
-          isHovered: false
+          files: [],
+          isHovered: []
         }
     },
     created () {
@@ -61,20 +68,23 @@ export default {
         this.$axios.get(`http://localhost:8080/api/v1/posts/${this.boardId}`, {                      
         }).then( res => {
             this.boardData = res.data
-            this.file = this.boardData.file
+            this.files = this.boardData.files
+            for (let i = 0; i < this.files.length; i++) {
+              this.$set(this.isHovered, i, false)
+            }
             console.log(this.$data)
         }).catch( error => {
             console.log('게시물을 불러오지 못했습니다.', error)
         })
     },
     methods: {
-      download () {
-        this.$axios.get(`http://localhost:8080/api/v1/posts/download/${this.boardId}`, {
+      download (file) {
+        this.$axios.get(`http://localhost:8080/api/v1/posts/download/${file.id}`, {
           responseType: 'blob'
         }).then( res => {
           let blob = new Blob([res.data], {type: res.headers['content-type']})
           console.log('파일 데이터 받아오기 성공 ::: ', blob)
-          let fileName = this.file.originFileName
+          let fileName = file.originFileName
           let link = document.createElement('a')
           link.href = window.URL.createObjectURL(blob)
           link.target = '_self'
@@ -86,18 +96,8 @@ export default {
           alert('파일 다운로드에 실패했습니다. 다시 시도해주세요.')
         })
       },
-      getFileName (contentDisposition) {
-        let fileName = contentDisposition.split(';')
-        .filter((ele) => {
-          return ele.indexOf('fileName') > -1
-        })
-        .map ( (ele) => {
-          return ele.replace(/"/g, '').split('=')[1]
-        })
-        return fileName[0] ? fileName[0] : null
-      },
-      handleHover(hovered) {
-        this.isHovered = hovered
+      handleHover(idx, active) {
+        this.$set(this.isHovered, idx, active)
       }
     }
 }

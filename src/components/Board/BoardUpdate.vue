@@ -48,12 +48,30 @@
       </b-form-group>
 
       <b-form-group id="input-group-6" label="파일" label-for="input-content">
-        <b-form-file v-model="newFile" ref="file-input" class="mt-3" plain></b-form-file>
-        <div v-if="newFile !== null" class="mt-3">업로드된 파일 : <b>{{newFile ? newFile.name : ''}}</b></div>
-        <div v-if="newFile === null" class="mt-3">업로드된 파일 : <b>{{oldFile ? oldFile.originFileName : ''}}</b></div>
+        <b-form-file v-model="newFile" ref="file-input" multiple placeholder="파일을 올려주세요~" class="mt-3">
+          <template v-slot:file-name="{names}">
+            <b-badge v-for="(name,idx) in names" :key="idx" variant="dark" class="ml-1">{{name}}</b-badge>
+          </template>
+        </b-form-file>
+      <!-- <div v-if="newFile !== null" class="mt-3">업로드된 파일</div>
+        <div v-for="(file,idx) in newFile" :key="idx">
+          <b>{{newFile ? newFile. : ''}}</b>
+        </div>
+      <div v-if="newFile === null" class="mt-3">업로드된 파일  <b>{{oldFile ? oldFile.originFileName : ''}}</b></div> -->
       </b-form-group>
+      <div v-if="oldFile.length > 0" class="mt-3"> 업로드된 파일
+        <span v-if="newFile.length === 0">
+          <div v-for="(file, idx) in oldFile" :key="idx">
+            <b>{{file.originFileName}}</b>
+          </div>
+        </span>
+        <span v-else-if="newFile !== null">
+          <div v-for="(file, idx) in newFile" :key="idx">
+            <b>{{file.name}}</b>
+          </div>
+        </span>
+      </div>
       <b-button @click="clearFiles" class="mr-2">파일 지우기</b-button>
-
       <b-button type="submit" variant="primary">수정</b-button>
       <b-button @click="onDelete" type="delete" variant="danger">삭제</b-button>
       <b-button href="/">취소</b-button>
@@ -75,8 +93,8 @@ export default {
                 content: '',
                 title: '',
             },
-            newFile: null,
-            oldFile: null
+            newFile: [],
+            oldFile: []
         }
     },
     created() {        
@@ -88,10 +106,17 @@ export default {
             this.boardData.title = res.data.title
             this.boardData.author = res.data.author
             this.boardData.content = res.data.content
-            this.oldFile = res.data.file
+            this.oldFile = res.data.files
         }).catch( function() {
             console.log('게시판 업데이트 페이지에 쓸 정보 불러오기 실패')
         })
+    },
+    watch: {
+      newFile: function(newVal) {
+        for (const newFile in newVal) {
+          this.oldFile.originFileName = newFile.name
+        }
+      }
     },
     methods: {
         onSubmit (event) {
@@ -102,7 +127,11 @@ export default {
           })
           let formData = new FormData()
           formData.append('data', blob)
-          formData.append('file', this.newFile)
+
+          //file 여러개를 보낸다.
+          for (let i = 0; i < this.newFile.length; i++) {
+            formData.append('file', this.newFile[i])
+          }
 
           this.$axios.put(`http://localhost:8080/api/v1/posts/${this.boardId}`, formData, {
           }).then( function() {
@@ -125,8 +154,8 @@ export default {
         },
         clearFiles () {
           this.$refs['file-input'].reset()
-          this.newFile = null
-          this.oldFile = null
+          this.newFile = []
+          this.oldFile = []
         }
     }
 }
