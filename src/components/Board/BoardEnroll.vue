@@ -39,8 +39,11 @@
       </b-form-group>
 
       <b-form-group id="input-group-6" label="파일" label-for="input-content">
-        <b-form-file v-model="file" class="mt-3" plain></b-form-file>
-        <div class="mt-3">선택된 파일 : {{file ? file.name : ''}}</div>
+        <b-form-file v-model="files" placeholder="파일을 올려주세요~" multiple class="mt-3">
+          <template v-slot:file-name="{names}">
+            <b-badge v-for="(name,idx) in names" :key="idx" variant="dark" class="ml-1">{{name}}</b-badge>
+          </template>
+        </b-form-file>
       </b-form-group>
       
       <b-button type="submit" variant="primary">등록</b-button>
@@ -60,10 +63,11 @@ export default {
             password: '',
             content: ''
           },
-          file: null
+          files: []
         }
     },
     methods: {
+        // 게시글 전송 함수
         onSubmit (event) {
           event.preventDefault()
           
@@ -75,7 +79,13 @@ export default {
           console.log('after Blob :: ', blob)
           let formData = new FormData()
           formData.append('data', blob)
-          formData.append('file', this.file)
+          
+          //file 여러개를 보낸다.
+          for (let i = 0; i < this.files.length; i++) {
+            formData.append('file', this.files[i])
+          }
+          // formData.append('file', this.file)
+        
             this.$axios.post('http://localhost:8080/api/v1/posts', formData, {
             }).then( response => {          
               console.log('게시판 글 등록 성공', response)              
@@ -83,7 +93,7 @@ export default {
               window.location.href = '/'
             }).catch( function(error) {
                 console.log('게시판 글 등록 실패', error)
-            })     
+            })
         }
     }
 }
