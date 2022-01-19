@@ -20,7 +20,7 @@
       
       <b-form-group id="input-group-4" label="비밀번호" label-for="input-password">
         <b-form-input
-          id="input-password"
+          id="input-password" type="password"
           v-model="data.password"
           required
         ></b-form-input>

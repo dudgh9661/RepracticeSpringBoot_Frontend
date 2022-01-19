@@ -1,0 +1,50 @@
+<template>
+  <div>
+      <b-form @submit="onSubmit" inline>
+        <b-form-input
+            id="input-password"
+            placeholder="비밀번호를 입력해주세요!"
+            v-model="password"
+            required>
+        </b-form-input>
+        <b-button type="submit" variant="primary">확인</b-button>
+      </b-form>
+  </div>
+</template>
+
+<script>
+export default {
+    name: 'CommentDelete',
+    props: {
+        comment: Object
+    },
+    data () {
+        return {
+            password: ''
+        }
+    },
+    created () {
+        console.log('CommentDelete created ::: ', this.comment)
+    },
+    methods: {
+        onSubmit () {
+            console.log('확인 버튼 클릭 ::: ', this.comment)
+            let data = {
+                password : this.password
+            }
+            this.$axios.post('http://localhost:8080/api/v1/comments/' + this.comment.id, data, {
+            }).then( response => {
+                console.log('댓글 삭제 성공 ::: ', response)
+                this.$emit('deleteComment')
+            }).catch( error => {
+                console.log('댓글 삭제 실패 ::: ', error)
+            })
+        }
+    }
+
+}
+</script>
+
+<style>
+
+</style>
