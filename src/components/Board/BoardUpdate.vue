@@ -81,6 +81,8 @@
 
 <script>
 
+import utils from '@/utils/utils.js'
+
 export default {
     name: 'BoardUpdate',
     data () {
@@ -144,7 +146,15 @@ export default {
         },
         onDelete (event) {
           event.preventDefault()
-          this.$axios.delete(`http://localhost:8080/api/v1/posts/${this.boardData.id}`,{                
+          if (utils.isEmpty(this.boardData.password)) {
+            window.alert('비밀번호가 입력되지 않았습니다.')
+            return
+          }
+          
+          let data = {
+            password : this.boardData.password
+          }
+          this.$axios.post(`http://localhost:8080/api/v1/posts/${this.boardData.id}`, data, {                
           }).then( () => {
             console.log('게시판 삭제 성공')
             window.location.href = '/'

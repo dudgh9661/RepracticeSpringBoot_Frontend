@@ -47,23 +47,28 @@
           </span>
         </div>
       </div>
-
+      <Comments :postId="this.boardId"></Comments>
       <b-button href="/">홈으로</b-button>
     </b-form>
     </div>
 </template>
 
 <script>
+
+import Comments from './Comments.vue'
+
 export default {
-    data () {
-        return {
-          boardId: this.$route.params.id,
-          boardData: {},
-          files: [],
-          isHovered: []
-        }
-    },
-    created () {
+  components: { Comments },
+
+  data () {
+      return {
+        boardId: this.$route.params.id,
+        boardData: {},
+        files: [],
+        isHovered: []
+      }
+  },
+  created () {
         this.id = this.$route.params.id
         this.$axios.get(`http://localhost:8080/api/v1/posts/${this.boardId}`, {                      
         }).then( res => {

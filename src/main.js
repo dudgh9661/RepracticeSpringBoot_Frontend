@@ -8,7 +8,6 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
-import { store } from "./store"
 
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
@@ -18,6 +17,5 @@ Vue.prototype.$axios = axios
 
 new Vue({
   router,
-  store,
   render: h => h(App)
 }).$mount('#app')

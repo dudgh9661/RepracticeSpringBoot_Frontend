@@ -21,70 +21,23 @@
 
 ### 프로젝트 구조
 ```
-backend/src
-├── main
-│   ├── java
-│   │   └── com
-│   │       └── yeongho
-│   │           └── book
-│   │               └── springboot
-│   │                   ├── Application.java
-│   │                   ├── config
-│   │                   │   └── WebSecurityConfig.java
-│   │                   ├── domain
-│   │                   │   ├── BaseTimeEntity.java
-│   │                   │   └── posts
-│   │                   │       ├── Posts.java
-│   │                   │       └── PostsRepository.java
-│   │                   ├── service
-│   │                   │   └── posts
-│   │                   │       └── PostsService.java
-│   │                   └── web
-│   │                       ├── HelloController.java
-│   │                       ├── PostsApiController.java
-│   │                       └── dto
-│   │                           ├── HelloResponseDto.java
-│   │                           ├── PostsListResponseDto.java
-│   │                           ├── PostsResponseDto.java
-│   │                           ├── PostsSaveRequestDto.java
-│   │                           └── PostsUpdateRequestDto.java
-│   └── resources
-│       └── application.properties
-└── test
-    └── java
-        └── com
-            └── yeongho
-                └── book
-                    └── springboot
-                        ├── config
-                        │   └── WebSecurityConfigTest.java
-                        ├── domain
-                        │   └── posts
-                        │       └── PostsRepositoryTest.java
-                        └── web
-                            ├── HelloControllerTest.java
-                            ├── PostApiControllerTest.java
-                            └── dto
-                                └── HelloResponseDtoTest.java
-                                
 frontend/src
-├── App.vue
-├── components
-│   ├── Board
-│   │   ├── Board.vue
-│   │   ├── BoardEnroll.vue
-│   │   ├── BoardList.vue
-│   │   └── BoardUpdate.vue
-│   ├── HelloWorld.vue
-│   └── Login.vue
-├── main.js
-├── plugins
-│   └── bootstrap-vue.js
-├── router
-│   └── index.js
-├── store.js
-└── views
-    └── Main.vue
-
-
+    ├── App.vue
+    ├── components
+    │   └── Board
+    │       ├── Board.vue
+    │       ├── BoardEnroll.vue
+    │       ├── BoardList.vue
+    │       ├── BoardUpdate.vue
+    │       ├── CommentDelete.vue
+    │       ├── CommentEnroll.vue
+    │       ├── Comments.vue
+    │       └── nestedComment.vue
+    ├── main.js
+    ├── router
+    │   └── index.js
+    ├── utils
+    │   └── utils.js
+    └── views
+        └── Main.vue
 ```
