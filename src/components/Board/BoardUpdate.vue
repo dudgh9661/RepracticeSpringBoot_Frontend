@@ -30,7 +30,7 @@
 
       <b-form-group id="input-group-4" label="비밀번호" label-for="input-password">
         <b-form-input
-          id="input-password"
+          id="input-password" type="password"
           v-model="boardData.password"
           required
         ></b-form-input>
@@ -123,6 +123,7 @@ export default {
     methods: {
         onSubmit (event) {
           event.preventDefault()
+          let vueThis = this
           let dataToJson = JSON.stringify(this.boardData)
           let blob = new Blob([dataToJson], {
             type: 'application/json'
@@ -141,26 +142,36 @@ export default {
           //2. 홈으로 redirect
           window.location.href = '/'
           }).catch( function(error) {
-            console.log('게시판 업데이트 실패', error)
+            console.log('게시판 업데이트 실패')
+            let errorMessage = error.response.data.message
+            vueThis.$alert(errorMessage, null, 'error')
+            vueThis.boardData.password = ''
           })            
         },
         onDelete (event) {
           event.preventDefault()
+          let vueThis = this
           if (utils.isEmpty(this.boardData.password)) {
-            window.alert('비밀번호가 입력되지 않았습니다.')
+            this.$alert('비밀번호가 입력되지 않았습니다.')
             return
           }
           
           let data = {
             password : this.boardData.password
           }
-          this.$axios.post(`http://localhost:8080/api/v1/posts/${this.boardData.id}`, data, {                
-          }).then( () => {
-            console.log('게시판 삭제 성공')
-            window.location.href = '/'
-          }).catch( (error) => {
-              console.log('게시판 삭제 실패', error)
-          })
+
+          this.$confirm("정말 삭제하실건가요?").then(() => {
+            this.$axios.post(`http://localhost:8080/api/v1/posts/${this.boardData.id}`, data, {                
+            }).then( () => {
+              console.log('게시판 삭제 성공')
+              window.location.href = '/'
+            }).catch( (error) => {
+                console.log('게시판 삭제 실패', error)
+                let errorMessage = error.response.data.message
+                vueThis.$alert(errorMessage, null, 'error')
+                vueThis.boardData.password = ''
+                })
+            })
         },
         clearFiles () {
           this.$refs['file-input'].reset()
