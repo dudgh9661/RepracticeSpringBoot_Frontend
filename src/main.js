@@ -8,10 +8,12 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
+import VueSimpleAlert from 'vue-simple-alert'
 
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(VBHoverPlugin)
+Vue.use(VueSimpleAlert)
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios
 
