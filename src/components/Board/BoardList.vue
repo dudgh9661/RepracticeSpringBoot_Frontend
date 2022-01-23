@@ -1,11 +1,11 @@
 <template>
   <div>
-    <b-button href="/enroll">게시물 등록</b-button>
     <b-table striped hover @row-clicked="onClick" :items="postsList" :fields="fields">
       <template #cell(update)="row">
         <b-button size="sm" variant="primary" :to="{ name : 'BoardUpdate', params: { id : row.item.id }}">게시물 수정</b-button>
       </template>
     </b-table>
+    <div style="float:right;" class="mr-5"><b-button href="/enroll">게시물 등록</b-button></div>
   </div>
 </template>
 
