@@ -2,7 +2,7 @@ import '@babel/polyfill'
 import 'mutationobserver-shim'
 import Vue from 'vue'
 import './plugins/bootstrap-vue'
-import { BootstrapVue, IconsPlugin, VBHoverPlugin } from 'bootstrap-vue'
+import { BootstrapVue, IconsPlugin, VBHoverPlugin, NavbarPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import App from './App.vue'
@@ -14,6 +14,7 @@ Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(VBHoverPlugin)
 Vue.use(VueSimpleAlert)
+Vue.use(NavbarPlugin)
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios
 

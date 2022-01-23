@@ -1,6 +1,6 @@
 <template>
-    <div>    
-        <b-form>
+    <div>
+      <b-form>
       <b-form-group id="input-group-1" label="게시물 번호" label-for="input-id">
         <b-form-input
           id="input-1d"
@@ -56,7 +56,6 @@
 <script>
 
 import Comments from './Comments.vue'
-
 export default {
   components: { Comments },
 
