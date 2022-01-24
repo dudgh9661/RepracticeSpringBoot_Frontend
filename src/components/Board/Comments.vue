@@ -84,6 +84,10 @@ export default {
                         }
                     }
                 }
+                this.openIdx = null
+                this.openDeleteIdx = null
+                this.openDelete = false
+
                 console.log('commentList ::: ', this.commentList)
             }).catch(error => {
                 console.log('댓글 조회 실패 ::: ', error)
