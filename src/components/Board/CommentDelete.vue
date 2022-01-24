@@ -1,6 +1,6 @@
 <template>
   <div>
-      <b-form @submit="onSubmit" inline>
+      <b-form @submit="onDelete" inline>
         <b-form-input
             id="input-password"
             placeholder="비밀번호를 입력해주세요!"
@@ -27,8 +27,10 @@ export default {
         console.log('CommentDelete created ::: ', this.comment)
     },
     methods: {
-        onSubmit () {
+        onDelete (event) {
+            event.preventDefault()
             console.log('확인 버튼 클릭 ::: ', this.comment)
+            let vueThis = this
             let data = {
                 password : this.password
             }
@@ -38,6 +40,9 @@ export default {
                 this.$emit('deleteComment')
             }).catch( error => {
                 console.log('댓글 삭제 실패 ::: ', error)
+                let errorMessage = error.response.data.message
+                vueThis.$alert(errorMessage, null, 'error')
+                vueThis.password = ''
             })
         }
     }
