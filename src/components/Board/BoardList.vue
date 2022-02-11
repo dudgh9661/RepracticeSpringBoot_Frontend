@@ -1,5 +1,9 @@
 <template>
+
   <div>
+    <navigation
+      @searchPost="getSearchResult">
+    </navigation>
     <b-table striped hover @row-clicked="onClick" :items="postsList" :fields="fields">
       <template #cell(update)="row">
         <b-button size="sm" variant="primary" :to="{ name : 'BoardUpdate', params: { id : row.item.id }}">게시물 수정</b-button>
@@ -10,10 +14,13 @@
 </template>
 
 <script>
-  import utils from '@/utils/utils.js'
-  
+  import Navigation from '../nav/Navigation.vue'
+
   export default {
     name: 'Board',
+    components: {
+      Navigation
+    },
     data() {
       return {
         sortBy: 'id',
@@ -34,10 +41,13 @@
         }).then( response => {
             this.postsList = response.data
             this.postsList.forEach( (item) => {
-              item.modifiedDate = utils.getDateFormat(item.modifiedDate)
+              item.modifiedDate = this.$utils.getDateFormat(item.modifiedDate)
             }) 
             console.log('res ::::', this.postsList)
         })
+    },
+    beforeDestroy () {
+      this.$eventBus.$off('searchPost')
     },
     methods: {
       onClick (item) {
@@ -45,6 +55,10 @@
         //1. id를 '/board' url로 넘겨준다.
         console.log('onClick 함수 호출')
         window.location.href = `http://localhost:8081/board/${id}`
+      },
+      getSearchResult (payload) {
+        console.log('검색한 결과 => ', payload)
+        this.postsList = payload
       }
     }
   }
