@@ -9,6 +9,7 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import VueSimpleAlert from 'vue-simple-alert'
+import utils from './utils/utils.js'
 
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
@@ -17,6 +18,8 @@ Vue.use(VueSimpleAlert)
 Vue.use(NavbarPlugin)
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios
+Vue.prototype.$utils = utils
+Vue.prototype.$eventBus = new Vue() // eventBus
 
 new Vue({
   router,
