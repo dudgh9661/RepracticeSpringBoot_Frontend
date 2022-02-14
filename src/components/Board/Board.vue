@@ -69,7 +69,7 @@ export default {
   },
   created () {
         this.id = this.$route.params.id
-        this.$axios.get(`http://localhost:8080/api/v1/posts/${this.boardId}`, {                      
+        this.$axios.get(this.$url + `/api/v1/posts/${this.boardId}`, {                      
         }).then( res => {
             this.boardData = res.data
             this.files = this.boardData.files
@@ -83,7 +83,7 @@ export default {
     },
     methods: {
       download (file) {
-        this.$axios.get(`http://localhost:8080/api/v1/posts/download/${file.id}`, {
+        this.$axios.get(this.$url + `/api/v1/posts/download/${file.id}`, {
           responseType: 'blob'
         }).then( res => {
           let blob = new Blob([res.data], {type: res.headers['content-type']})

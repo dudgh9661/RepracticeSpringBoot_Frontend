@@ -34,7 +34,7 @@ export default {
             let data = {
                 password : this.password
             }
-            this.$axios.post('http://localhost:8080/api/v1/comments/' + this.comment.id, data, {
+            this.$axios.post(this.$url + `/api/v1/comments/${this.comment.id}`, data, {
             }).then( response => {
                 console.log('댓글 삭제 성공 ::: ', response)
                 this.$emit('deleteComment')

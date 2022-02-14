@@ -20,6 +20,10 @@ Vue.config.productionTip = false
 Vue.prototype.$axios = axios
 Vue.prototype.$utils = utils
 Vue.prototype.$eventBus = new Vue() // eventBus
+Vue.prototype.$url = 'http://3.37.212.153:8080'
+if (window.location.hostname === 'localhost') {
+  Vue.prototype.$url = 'http://localhost:8080'
+}
 
 new Vue({
   router,
