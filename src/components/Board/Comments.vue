@@ -63,7 +63,7 @@ export default {
     methods: {
         getCommentList () {
             this.commentList = []
-            this.$axios.get('http://localhost:8080/api/v1/comments/' + this.postId, {
+            this.$axios.get(this.$url + '/api/v1/comments/' + this.postId, {
             }).then(response => {
                 this.isOpen = false
                 let commentListData = response.data
@@ -107,7 +107,7 @@ export default {
             let data = {
                 password : ''
             }
-            this.$axios.post(`http://localhost:8080/api/v1/comments/${comment.id}`, data, {
+            this.$axios.post(this.$url + `/api/v1/comments/${comment.id}`, data, {
             }).then( response => {
                 console.log('댓글 삭제 성공 ::: ', response)
                 this.getCommentList()

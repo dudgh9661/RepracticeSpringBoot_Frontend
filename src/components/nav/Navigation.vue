@@ -44,7 +44,7 @@ export default {
         return
       }
 
-      this.$axios.get('http://localhost:8080/api/v1/posts/search?' + 'searchType=' + this.searchType + '&keyword=' + this.keyword)
+      this.$axios.get(this.$url + `/api/v1/posts/search?searchType=${this.searchType}&keyword=${this.keyword}`)
       .then( response => {
         console.log('clicksearch data : ', response)
         this.postsList = response.data

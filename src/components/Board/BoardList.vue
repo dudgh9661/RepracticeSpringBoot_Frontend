@@ -36,7 +36,7 @@
       }
     },
     created () {
-        this.$axios.get('http://localhost:8080/api/v1/posts', {
+        this.$axios.get(this.$url + '/api/v1/posts', {
             // headers: { 'Content-Type': 'application/json' }
         }).then( response => {
             this.postsList = response.data
@@ -54,7 +54,8 @@
         let id = item.id
         //1. id를 '/board' url로 넘겨준다.
         console.log('onClick 함수 호출')
-        window.location.href = `http://localhost:8081/board/${id}`
+        let url = this.$url + `/board/${id}`
+        window.location.href = url
       },
       getSearchResult (payload) {
         console.log('검색한 결과 => ', payload)

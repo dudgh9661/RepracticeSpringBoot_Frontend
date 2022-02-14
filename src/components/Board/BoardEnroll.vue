@@ -85,15 +85,15 @@ export default {
             formData.append('file', this.files[i])
           }
           // formData.append('file', this.file)
-        
-            this.$axios.post('http://localhost:8080/api/v1/posts', formData, {
-            }).then( response => {          
-              console.log('게시판 글 등록 성공', response)              
-              //2. 홈으로 redirect
-              window.location.href = '/'
-            }).catch( function(error) {
-                console.log('게시판 글 등록 실패', error)
-            })
+            
+          this.$axios.post(this.$url + '/api/v1/posts', formData, {
+          }).then( response => {
+            console.log('게시판 글 등록 성공', response)              
+            //2. 홈으로 redirect
+            window.location.href = '/'
+          }).catch( function(error) {
+            console.log('게시판 글 등록 실패', error)
+          })
         }
     }
 }

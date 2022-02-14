@@ -61,7 +61,7 @@ export default {
     methods: {
         onSubmit (event) {
             event.preventDefault()
-            this.$axios.post('http://localhost:8080/api/v1/comments', this.comment, {
+            this.$axios.post(this.$url + '/api/v1/comments', this.comment, {
             }).then( response => {
                 console.log('댓글 등록 성공 ::: ', response)
                 this.comment = {
