@@ -100,7 +100,7 @@ export default {
         }
     },
     created() {        
-        this.url = `http://localhost:8080/api/v1/posts/${this.boardId}`
+        this.url = this.$url + `/api/v1/posts/${this.boardId}`
         this.$axios.get(this.url, {
         }).then( res => {
             console.log('update res', res)
@@ -136,7 +136,7 @@ export default {
             formData.append('file', this.newFile[i])
           }
 
-          this.$axios.put(`http://localhost:8080/api/v1/posts/${this.boardId}`, formData, {
+          this.$axios.put(this.$url + `/api/v1/posts/${this.boardId}`, formData, {
           }).then( function() {
           console.log('게시판 업데이트 데이터 전송 성공')
           //2. 홈으로 redirect
@@ -161,7 +161,7 @@ export default {
           }
 
           this.$confirm("정말 삭제하실건가요?").then(() => {
-            this.$axios.post(`http://localhost:8080/api/v1/posts/${this.boardData.id}`, data, {                
+            this.$axios.post(this.$url + `/api/v1/posts/${this.boardData.id}`, data, {                
             }).then( () => {
               console.log('게시판 삭제 성공')
               window.location.href = '/'
