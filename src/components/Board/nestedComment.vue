@@ -6,7 +6,11 @@
         <span class="mb-2 mr-sm-2 mb-sm-0"><b>댓글</b> : {{comment.text}}</span>
         <span class="mb-2 mr-sm-2 mb-sm-0"><b>작성시간</b> : {{comment.modifiedDate}}</span>
         <b-icon icon="trash-fill" size="sm" @click="onClickDelete()">삭제</b-icon>
-        <comment-delete v-if="openDelete" :comment="comment"></comment-delete>
+        <comment-delete 
+            v-if="openDelete"
+            @delete-comment="test"
+            :comment="comment">
+        </comment-delete>
     </span>
     <span v-else>
         <del>이 댓글은 삭제된 댓글입니다.</del>
@@ -36,6 +40,9 @@ export default {
     methods: {
         onClickDelete() {
             this.openDelete = !this.openDelete
+        },
+        test () {
+            this.$emit('delete-comment')
         }
     }
 }

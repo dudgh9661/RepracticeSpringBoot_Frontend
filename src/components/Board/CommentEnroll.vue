@@ -50,7 +50,8 @@ export default {
                 postId: this.postId,
                 author: '',
                 password: '',
-                text: ''
+                text: '',
+                isDeleted: false
             }
         }
     },
@@ -61,17 +62,20 @@ export default {
     methods: {
         onSubmit (event) {
             event.preventDefault()
+            let vueThis = this
             this.$axios.post(this.$url + '/api/v1/comments', this.comment, {
             }).then( response => {
                 console.log('댓글 등록 성공 ::: ', response)
+                // 페이지 리로딩 없이 재사용하기 때문에 초기화 필요
                 this.comment = {
                     parentId: '0',
                     postId: this.postId,
                     author: '',
                     password: '',
-                    text: ''
+                    text: '',
+                    isDeleted: false
                 }
-                this.$emit('newComment')
+                vueThis.$emit('new-comment')
             }).catch(error => {
                 console.log('댓글 등록 실패', error)
             })
