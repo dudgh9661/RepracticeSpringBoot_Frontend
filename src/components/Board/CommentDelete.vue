@@ -36,8 +36,8 @@ export default {
             }
             this.$axios.post(this.$url + `/api/v1/comments/${this.comment.id}`, data, {
             }).then( response => {
+                vueThis.$emit('delete-comment')
                 console.log('댓글 삭제 성공 ::: ', response)
-                this.$emit('deleteComment')
             }).catch( error => {
                 console.log('댓글 삭제 실패 ::: ', error)
                 let errorMessage = error.response.data.message

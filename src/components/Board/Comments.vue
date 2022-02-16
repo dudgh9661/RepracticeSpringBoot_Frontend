@@ -14,25 +14,30 @@
             <span v-else>
                 <del>이 댓글은 삭제된 댓글입니다.</del>
             </span>
+            <!-- 댓글 삭제 -->
             <comment-delete v-if="openDeleteIdx === idx && openDelete"
                 :comment="comments.comment"
-                @deleteComment="getCommentList()">
+                @delete-comment="getCommentList()">
             </comment-delete>
+            <!-- 대댓글 등록 -->
             <comment-enroll
                 v-show="isOpen" v-if="openIdx === idx"
                 :postId="postId" 
                 :parentId="comments.comment.id" 
-                @newComment="getCommentList()">
+                @new-comment="getCommentList()">
             </comment-enroll>
+            <!-- 대댓글 등록 -->
             <nested-comment 
                 v-for="(child, childIdx) in comments.children"
                 :key="childIdx"
                 :comment="child"
-                :isDeleted="child.isDeleted">
+                :isDeleted="child.isDeleted"
+                @delete-comment="getCommentList()">
             </nested-comment>
         </div>
     </ul>
-    <comment-enroll :postId="postId" @newComment="getCommentList()"></comment-enroll>
+    <!-- 댓글 등록 -->
+    <comment-enroll :postId="postId" @new-comment="getCommentList()"></comment-enroll> 
   </div>
 </template>
 
@@ -101,19 +106,6 @@ export default {
         onClickDelete (idx) {
             this.openDelete = !this.openDelete
             this.openDeleteIdx = idx
-        },
-        onDelete (comments) {
-            let comment = comments.comment
-            let data = {
-                password : ''
-            }
-            this.$axios.post(this.$url + `/api/v1/comments/${comment.id}`, data, {
-            }).then( response => {
-                console.log('댓글 삭제 성공 ::: ', response)
-                this.getCommentList()
-            }).catch( error => {
-                console.log('댓글 삭제 실패 ::: ', error)
-            })
         }
     }
 }
