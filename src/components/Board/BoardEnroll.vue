@@ -39,7 +39,7 @@
       </b-form-group>
 
       <b-form-group id="input-group-6" label="파일" label-for="input-content">
-        <b-form-file v-model="files" placeholder="파일을 올려주세요~" multiple class="mt-3">
+        <b-form-file v-model="files" accept="image/*" placeholder="이미지 파일만 업로드 가능합니다!" multiple class="mt-3">
           <template v-slot:file-name="{names}">
             <b-badge v-for="(name,idx) in names" :key="idx" variant="dark" class="ml-1">{{name}}</b-badge>
           </template>
