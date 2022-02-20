@@ -6,17 +6,17 @@
           <div class="board_header">
             <div class="BoardTitle">
               <div class="title_area">
-                <h3 class="title_text">{{boardData.title}}</h3>
+                <h3 class="title_text">{{ boardData.title }}</h3>
               </div>
             </div>
             <div class="WriterInfo">
               <div class="profile_area">
                 <div class="profile_info">
                   <div class="nick_box">
-                    <span class="nickname">{{boardData.author}}</span>
+                    <span class="nickname">{{ boardData.author }}</span>
                   </div>
                   <div class="board_info">
-                    <span class="date">{{boardData.date}}</span>
+                    <span class="date">{{ boardData.date }}</span>
                   </div>
                 </div>
               </div>
@@ -51,13 +51,19 @@
                     <div class="se-component se-text">
                       <div class="se-component-content">
                         <div class="se-section se-section-text">
-                          {{boardData.content}}
+                          {{ boardData.content }}
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="AttachFileIssueLayer" style="display: none;"></div>
+                <div class="AttachFileIssueLayer" style="display: none"></div>
+                <Comments :postId="this.boardId"></Comments>
+                <div class="ArticleBottomBtns">
+                  <div class="right_area">
+                    <a href="/"><span class="BaseButton BaseButton--skinGray size_default BaseButton__txt"> 홈으로 </span></a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -68,93 +74,97 @@
     <div v-if="files.length > 0" class="mt-3">
       업로드된 파일
       <div v-for="(file, idx) in files" :key="idx">
-        <b>{{file.originFileName}}</b>
+        <b>{{ file.originFileName }}</b>
         <span
           :class="isHovered[idx] ? 'text-primary' : ''"
-          @mouseover="handleHover(idx,true)"
-          @mouseleave="handleHover(idx,false)"
+          @mouseover="handleHover(idx, true)"
+          @mouseleave="handleHover(idx, false)"
           @click="download(file)"
         >
           다운로드
         </span>
       </div>
     </div>
-    <Comments :postId="this.boardId"></Comments>
-    <b-button href="/">홈으로</b-button>
   </div>
 </template>
 
 <script>
-
-import Comments from './Comments.vue'
+import Comments from "./Comments.vue";
 export default {
   components: { Comments },
 
-  data () {
-      return {
-        boardId: this.$route.params.id,
-        boardData: {},
-        files: [],
-        filesUrl: [],
-        isHovered: []
-      }
+  data() {
+    return {
+      boardId: this.$route.params.id,
+      boardData: {},
+      files: [],
+      filesUrl: [],
+      isHovered: [],
+    };
   },
-  created () {
-        this.id = this.$route.params.id
-        this.$axios.get(this.$url + `/api/v1/posts/${this.boardId}`, {
-        }).then( res => {
-            this.boardData = res.data
-            this.boardData.date = this.$utils.getDateFormat(res.data.date)
-            this.files = this.boardData.files
-            for (let i = 0; i < this.files.length; i++) {
-              this.$set(this.isHovered, i, false)
-            }
-            console.log('get posts data ::: ', this.$data)
-            console.log('uploaded files ::: ', this.files)
-            // get file src URL
-            for (let i = 0; i < this.files.length; i++) {
-              this.$axios.get(this.$url + `/api/v1/posts/download/${this.files[i].id}`, {
-                responseType: 'blob'
-              }).then( res => {
-                let blob = new Blob([res.data], {type: res.headers['content-type']})
-                console.log('파일 데이터 받아오기 성공 ::: ', blob)
-                // file download 링크 생성
-                let link = document.createElement('a')
-                link.href = window.URL.createObjectURL(blob)
-                this.filesUrl.push(link)
-                window.URL.revokeObjectURL(blob)
-              }).catch(  error =>  {
-                console.log('파일 이미지 불러오기 실패 ::: ', error)
-                alert('파일 이미지 불러오기를 실패했습니다. 다시 시도해주세요.')
-            })
+  created() {
+    this.id = this.$route.params.id;
+    this.$axios
+      .get(this.$url + `/api/v1/posts/${this.boardId}`, {})
+      .then((res) => {
+        this.boardData = res.data;
+        this.boardData.date = this.$utils.getDateFormat(res.data.date);
+        this.files = this.boardData.files;
+        for (let i = 0; i < this.files.length; i++) {
+          this.$set(this.isHovered, i, false);
         }
-        console.log('filesUrl ::: ', this.filesUrl)
-        }).catch( error => {
-            console.log('게시물을 불러오지 못했습니다.', error)
-        })
+        console.log("get posts data ::: ", this.$data);
+        console.log("uploaded files ::: ", this.files);
+        // get file src URL
+        for (let i = 0; i < this.files.length; i++) {
+          this.$axios
+            .get(this.$url + `/api/v1/posts/download/${this.files[i].id}`, {
+              responseType: "blob",
+            })
+            .then((res) => {
+              let blob = new Blob([res.data], {
+                type: res.headers["content-type"],
+              });
+              console.log("파일 데이터 받아오기 성공 ::: ", blob);
+              // file download 링크 생성
+              let link = document.createElement("a");
+              link.href = window.URL.createObjectURL(blob);
+              this.filesUrl.push(link);
+              window.URL.revokeObjectURL(blob);
+            })
+            .catch((error) => {
+              console.log("파일 이미지 불러오기 실패 ::: ", error);
+              alert("파일 이미지 불러오기를 실패했습니다. 다시 시도해주세요.");
+            });
+        }
+        console.log("filesUrl ::: ", this.filesUrl);
+      })
+      .catch((error) => {
+        console.log("게시물을 불러오지 못했습니다.", error);
+      });
+  },
+  methods: {
+    /*
+     * 함수명 : download
+     * 설명 : 파일 다운로드를 실행한다.
+     */
+    download(file) {
+      let fileName = file.originFileName;
+      let link = this.filesUrl[this.files.indexOf(file)];
+      link.target = "_self";
+      link.download = fileName;
+      link.click();
+      link.remove();
     },
-    methods: {
-      /*
-       * 함수명 : download
-       * 설명 : 파일 다운로드를 실행한다.
-      */
-      download (file) {
-          let fileName = file.originFileName
-          let link = this.filesUrl[this.files.indexOf(file)]
-          link.target = '_self'
-          link.download = fileName
-          link.click()
-          link.remove()
-      },
-      /*
-       * 함수명 : handleHover
-       * 설명 : 파일 다운로드 text에 hover를 각각 적용한다.
-      */
-      handleHover(idx, active) {
-        this.$set(this.isHovered, idx, active)
-      }
-    }
-}
+    /*
+     * 함수명 : handleHover
+     * 설명 : 파일 다운로드 text에 hover를 각각 적용한다.
+     */
+    handleHover(idx, active) {
+      this.$set(this.isHovered, idx, active);
+    },
+  },
+};
 </script>
 <style scoped>
 .layout_content {
@@ -217,7 +227,7 @@ div {
   margin-right: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: chartreuse;
+  color: #32cd32;
 }
 .board_info {
   font-size: 12px;
@@ -309,11 +319,39 @@ div {
   vertical-align: baseline;
 }
 .se-component-content .se-section-text {
-  
   /* font-weight: 400; */
   font-size: 25px;
   /* word-break: break-all; */
   /* word-wrap: break-word; */
   /* word-break: break-word; */
+}
+.ArticleBottomBtns {
+    padding-top: 14px;
+}
+.ArticleBottomBtns .right_area {
+    float: right;
+}
+.BaseButton {
+    margin: 15px;
+    margin-bottom: 50px;
+    display: inline-block;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-weight: 700;
+    text-align: center;
+    vertical-align: top;
+}
+.BaseButton--skinGray {
+    border: 1px solid transparent;
+    background: #eff0f2;
+    color: #000000;
+}
+.BaseButton.size_default {
+    min-width: 46px;
+    height: 36px;
+    margin-left: 10px;
+    padding: 0 12px;
+    font-size: 13px;
+    line-height: 36px;
 }
 </style>
