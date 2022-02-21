@@ -57,32 +57,37 @@
                     </div>
                   </div>
                 </div>
-                <div class="AttachFileIssueLayer" style="display: none"></div>
+                <div class="AttachFileIssueLayer">
+                  <div v-if="files.length > 0" class="mt-3">
+                    <div v-for="(file, idx) in files" :key="idx">
+                      <b>{{ file.originFileName }}</b>
+                      <span
+                        :class="isHovered[idx] ? 'text-primary' : ''"
+                        @mouseover="handleHover(idx, true)"
+                        @mouseleave="handleHover(idx, false)"
+                        @click="download(file)"
+                      >
+                        다운로드
+                      </span>
+                    </div>
+                  </div>
+                </div>
                 <Comments :postId="this.boardId"></Comments>
                 <div class="ArticleBottomBtns">
                   <div class="right_area">
-                    <a href="/"><span class="BaseButton BaseButton--skinGray size_default BaseButton__txt"> 홈으로 </span></a>
+                    <a href="/"
+                      ><span
+                        class="BaseButton BaseButton--skinGray size_default BaseButton__txt"
+                      >
+                        홈으로
+                      </span></a
+                    >
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div v-if="files.length > 0" class="mt-3">
-      업로드된 파일
-      <div v-for="(file, idx) in files" :key="idx">
-        <b>{{ file.originFileName }}</b>
-        <span
-          :class="isHovered[idx] ? 'text-primary' : ''"
-          @mouseover="handleHover(idx, true)"
-          @mouseleave="handleHover(idx, false)"
-          @click="download(file)"
-        >
-          다운로드
-        </span>
       </div>
     </div>
   </div>
@@ -326,32 +331,32 @@ div {
   /* word-break: break-word; */
 }
 .ArticleBottomBtns {
-    padding-top: 14px;
+  padding-top: 14px;
 }
 .ArticleBottomBtns .right_area {
-    float: right;
+  float: right;
 }
 .BaseButton {
-    margin: 15px;
-    margin-bottom: 50px;
-    display: inline-block;
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-weight: 700;
-    text-align: center;
-    vertical-align: top;
+  margin: 15px;
+  margin-bottom: 50px;
+  display: inline-block;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: top;
 }
 .BaseButton--skinGray {
-    border: 1px solid transparent;
-    background: #eff0f2;
-    color: #000000;
+  border: 1px solid transparent;
+  background: #eff0f2;
+  color: #000000;
 }
 .BaseButton.size_default {
-    min-width: 46px;
-    height: 36px;
-    margin-left: 10px;
-    padding: 0 12px;
-    font-size: 13px;
-    line-height: 36px;
+  min-width: 46px;
+  height: 36px;
+  margin-left: 10px;
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 36px;
 }
 </style>
