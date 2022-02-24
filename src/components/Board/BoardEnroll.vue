@@ -5,7 +5,7 @@
         <b-form-input
           id="input-title"
           v-model="data.title"
-          placeholder="제목을 적어주세요!"
+          placeholder="제목을 적어주세요"
           required
         ></b-form-input>
       </b-form-group>
@@ -32,14 +32,14 @@
           v-model="data.content"          
           type="text"
           size="lg"
-          placeholder="내용을 입력해주세요~!"
+          placeholder="내용을 입력해주세요"
           rows="10"
           required
         ></b-form-textarea>
       </b-form-group>
 
       <b-form-group id="input-group-6" label="파일" label-for="input-content">
-        <b-form-file v-model="files" accept="image/*" placeholder="이미지 파일만 업로드 가능합니다!" multiple class="mt-3">
+        <b-form-file v-model="files" accept="image/*" placeholder="이미지 파일만 업로드 가능합니다" multiple class="mt-3">
           <template v-slot:file-name="{names}">
             <b-badge v-for="(name,idx) in names" :key="idx" variant="dark" class="ml-1">{{name}}</b-badge>
           </template>
