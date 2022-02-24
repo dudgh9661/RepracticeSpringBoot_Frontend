@@ -15,10 +15,28 @@
           </div>
           <div class="comment_info_box">
             <span class="box_left">
-              <div class="like_board">
-                <b-icon icon="heart" variant="danger"></b-icon
-                ><span style="padding: 0px 5px 0px 2px; color: black"
-                  >좋아요 3</span
+              <div
+                class="like_board"
+                style="cursor: pointer"
+                @click="onClickLiked(comment)"
+              >
+                <b-icon
+                  v-if="comment.isLiked === false"
+                  icon="heart"
+                  variant="danger"
+                ></b-icon
+                ><b-icon
+                  v-else-if="comment.isLiked"
+                  icon="heart-fill"
+                  variant="danger"
+                ></b-icon
+                ><span
+                  style="
+                    padding: 0px 5px 0px 2px;
+                    color: black;
+                    cursor: default;
+                  "
+                  >좋아요 {{ comment.liked }}</span
                 >
               </div>
             </span>
@@ -34,14 +52,16 @@
             <!-- 댓글 삭제 -->
             <comment-delete
               v-if="openDelete"
-              @delete-comment="test"
+              @delete-comment="deleteComent()"
               :comment="comment"
             >
             </comment-delete>
           </div>
         </span>
         <span v-else>
-          <div style="color: darkgrey; margin-top: 10px;">이 댓글은 삭제된 댓글입니다.</div>
+          <div style="color: darkgrey; margin-top: 10px">
+            이 댓글은 삭제된 댓글입니다.
+          </div>
         </span>
       </div>
     </div>
@@ -71,8 +91,54 @@ export default {
     onClickDelete() {
       this.openDelete = !this.openDelete;
     },
-    test() {
+    deleteComent() {
       this.$emit("delete-comment");
+    },
+    onClickLiked(comment) {
+      console.log("onClickLiked comment ::: ", comment);
+      comment.isLiked = !comment.isLiked;
+      if (comment.isLiked === true) {
+        this.$axios
+          .post(this.$url + `/api/v1/comments/like/${comment.id}`, {})
+          .then(() => {
+            console.log("좋아요 버튼 클릭 : " + comment.isLiked);
+            this.$axios
+              .get(this.$url + `/api/v1/comments/like/${comment.id}`, {})
+              .then((res) => {
+                console.log("좋아요 버튼 get ::: ", res);
+                comment.liked = res.data.liked;
+              })
+              .catch((err) => {
+                console.log(
+                  "좋아요 버튼 클릭 true일 때 get method error ::: ",
+                  err
+                );
+              });
+          })
+          .catch((err) => {
+            console.log("좋아요 버튼 클릭 실패 ", err);
+          });
+      } else if (comment.isLiked === false) {
+        this.$axios
+          .delete(this.$url + `/api/v1/comments/like/${comment.id}`, {})
+          .then(() => {
+            console.log("좋아요 버튼 클릭 : " + comment.isLiked);
+            this.$axios
+              .get(this.$url + `/api/v1/comments/like/${comment.id}`)
+              .then((res) => {
+                comment.liked = res.data.liked;
+              })
+              .catch((err) => {
+                console.log(
+                  "좋아요 버튼 클릭 false일 때 get method error ::: ",
+                  err
+                );
+              });
+          })
+          .catch((err) => {
+            console.log("좋아요 버튼 클릭 실패 ", err);
+          });
+      }
     },
   },
 };

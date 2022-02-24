@@ -72,7 +72,27 @@
                     </div>
                   </div>
                 </div>
-                <Comments :postId="this.boardId"></Comments>
+                <div class="ReplyBox">
+                  <span class="box_left">
+                    <span
+                      class="like_board"
+                      style="cursor: pointer"
+                      @click="onClickLiked()"
+                    >
+                      <b-icon v-if="isLiked === false" icon="heart" variant="danger"></b-icon
+                      ><b-icon v-else-if="isLiked" icon="heart-fill" variant="danger"></b-icon
+                      ><span
+                        style="
+                          padding: 0px 5px 0px 2px;
+                          color: black;
+                          cursor: default;
+                        "
+                        >좋아요 {{ boardData.liked }}</span
+                      >
+                    </span>
+                  </span>
+                  <Comments :postId="this.boardId"></Comments>
+                </div>
                 <div class="ArticleBottomBtns">
                   <div class="right_area">
                     <a href="/"
@@ -105,6 +125,7 @@ export default {
       files: [],
       filesUrl: [],
       isHovered: [],
+      isLiked: false,
     };
   },
   created() {
@@ -168,10 +189,86 @@ export default {
     handleHover(idx, active) {
       this.$set(this.isHovered, idx, active);
     },
+    /*
+     * 함수명 : onClickLiked
+     * 설명 : 좋아요 버튼 눌렀을 때 작동한다.
+     */
+    onClickLiked() {
+      this.isLiked = !this.isLiked;
+      if (this.isLiked === true) {
+        this.$axios
+          .post(this.$url + `/api/v1/posts/like/${this.boardId}`, {})
+          .then(() => {
+            console.log("좋아요 버튼 클릭 : " + this.isLiked);
+            this.$axios
+              .get(this.$url + `/api/v1/posts/like/${this.boardId}`, {})
+              .then((res) => {
+                console.log("좋아요 버튼 get ::: ", res);
+                this.boardData.liked = res.data.liked;
+              })
+              .catch((err) => {
+                console.log(
+                  "좋아요 버튼 클릭 true일 때 get method error ::: ",
+                  err
+                );
+              });
+          })
+          .catch((err) => {
+            console.log("좋아요 버튼 클릭 실패 ", err);
+          });
+      } else if (this.isLiked === false) {
+        this.$axios
+          .delete(this.$url + `/api/v1/posts/like/${this.boardId}`, {})
+          .then(() => {
+            console.log("좋아요 버튼 클릭 : " + this.isLiked);
+            this.$axios
+              .get(this.$url + `/api/v1/posts/like/${this.boardId}`)
+              .then((res) => {
+                this.boardData.liked = res.data.liked;
+              })
+              .catch((err) => {
+                console.log(
+                  "좋아요 버튼 클릭 false일 때 get method error ::: ",
+                  err
+                );
+              });
+          })
+          .catch((err) => {
+            console.log("좋아요 버튼 클릭 실패 ", err);
+          });
+      }
+    },
   },
 };
 </script>
 <style scoped>
+.ReplyBox {
+  position: relative;
+  padding-top: 15px;
+  margin-bottom: 27px;
+  line-height: 19px;
+}
+.ReplyBox .like_board {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  font-size: 13px;
+}
+.button_comment {
+  padding-left: 5px;
+  color: black;
+}
+.ReplyBox .button_comment .icon_area {
+  display: inline-block;
+  position: relative;
+  margin-right: 2px;
+  vertical-align: top;
+}
+.ReplyBox .button_comment {
+  display: inline-block;
+  vertical-align: top;
+  font-size: 1;
+}
 .layout_content {
   width: 860px;
   margin: 0 auto;
