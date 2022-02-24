@@ -3,9 +3,9 @@
     <div class="CommentBox">
       <div class="comment_option">
         <span class="comment_title">댓글</span>
-        <span class="comment_count">{{ commentList.length }}</span>
+        <span class="comment_count">{{ getCommentLength }}</span>
         <span class="comment_tab">
-          <button type="button" class="comment_refresh_button">
+          <button type="button" class="comment_refresh_button" @click="getCommentList()">
             <b-icon icon="arrow-clockwise"></b-icon>
           </button>
         </span>
@@ -73,7 +73,7 @@
               <comment-delete
                 v-if="openDeleteIdx === idx && openDelete"
                 :comment="comments.comment"
-                @delete-comment="getCommentList()"
+                @delete-comment="deleteComment()"
               >
               </comment-delete>
               <!-- 대댓글 등록 -->
@@ -84,7 +84,7 @@
                 :postId="postId"
                 :parentId="comments.comment.id"
                 :isChild="true"
-                @new-comment="getCommentList()"
+                @new-comment="newCommentChild"
                 @onCancel="isOpen = false"
               >
               </comment-enroll>
@@ -94,7 +94,7 @@
                 :key="childIdx"
                 :comment="child"
                 :isDeleted="child.isDeleted"
-                @delete-comment="getCommentList()"
+                @delete-comment="deleteComment()"
               >
               </nested-comment>
             </div>
@@ -103,7 +103,7 @@
       </ul>
       <comment-enroll
         :postId="postId"
-        @new-comment="getCommentList()"
+        @new-comment="newComment"
       ></comment-enroll>
     </div>
   </div>
@@ -133,6 +133,17 @@ export default {
   created() {
     this.getCommentList();
   },
+  computed: {
+    getCommentLength () {
+      let cnt = this.commentList.length;
+      
+      for (let i = 0; i < this.commentList.length; i++) {
+        cnt += this.commentList[i].children.length
+      
+      }
+      return cnt;
+    }
+  },
   methods: {
     getCommentList() {
       this.commentList = [];
@@ -148,7 +159,7 @@ export default {
             let comment = commentListData[i];
             if (comment.parentId === 0) {
               comment.modifiedDate = utils.getDateFormat(comment.modifiedDate);
-              comment.isLiked = false
+              comment.isLiked = false // 좋아요 클릭 상태
               this.$set(this.commentList, i, { comment, children: [] });
             } else {
               for (let j = 0; j < this.commentList.length; j++) {
@@ -224,10 +235,29 @@ export default {
             console.log("좋아요 버튼 클릭 실패 ", err);
           });
       }
+    },
+    newComment (payload) {
+      console.log('newComment', payload)
+      let comment = payload
+      this.$set(this.commentList, this.commentList.length, { comment, children: [] });
+      console.log('update commentList ::: ', this.commentList)
+    },
+    newCommentChild (payload) {
+      let comment = payload
+      console.log('newCommentChild', comment)
+      for (let i = 0; i < this.commentList.length; i++) {
+        if (comment.parentId === this.commentList[i].comment.id) {
+          console.log('child11 ::: ', this.commentList[i].children)
+          this.$set(this.commentList[i].children, this.commentList[i].children.length, comment);
+          this.isOpen = false;
+          console.log('child22 ::: ', this.commentList[i].children)
+          return;
+        }
+      }
+    },
+    deleteComment () {
+      this.openDelete = false
     }
-    // newComment (payload) {
-    //   console.log('newComment', payload)
-    // }
   },
 };
 </script>
