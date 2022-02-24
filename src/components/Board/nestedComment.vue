@@ -52,7 +52,7 @@
             <!-- 댓글 삭제 -->
             <comment-delete
               v-if="openDelete"
-              @delete-comment="deleteComent()"
+              @delete-comment="deleteComment()"
               :comment="comment"
             >
             </comment-delete>
@@ -91,7 +91,8 @@ export default {
     onClickDelete() {
       this.openDelete = !this.openDelete;
     },
-    deleteComent() {
+    deleteComment() {
+      this.comment.isDeleted = true;
       this.$emit("delete-comment");
     },
     onClickLiked(comment) {

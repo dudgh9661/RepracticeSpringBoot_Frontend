@@ -36,6 +36,7 @@ export default {
           .post(this.$url + `/api/v1/comments/${this.comment.id}`, data, {})
           .then((response) => {
             vueThis.$emit("delete-comment");
+            this.comment.isDeleted = true;
             console.log("댓글 삭제 성공 ::: ", response);
           })
           .catch((error) => {

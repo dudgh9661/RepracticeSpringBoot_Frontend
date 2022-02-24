@@ -5,8 +5,14 @@
         <strong class="blind">댓글을 입력하세요</strong>
 
         <em class="comment_inbox_name">
-          <input class="input_box" v-model="comment.author" placeholder="닉네임" size="13" />
-          <input class="input_box"
+          <input
+            class="input_box"
+            v-model="comment.author"
+            placeholder="닉네임"
+            size="13"
+          />
+          <input
+            class="input_box"
             v-model="comment.password"
             placeholder="비밀번호"
             type="password"
@@ -18,14 +24,26 @@
           rows="1"
           class="comment_inbox_text"
           style="overflow: hidden; overflow-wrap: break-word; height: 17px"
+          @keydown.enter="onSubmit"
           v-model="comment.text"
         >
         </textarea>
       </div>
       <div class="comment_attach">
         <div class="register_box">
-          <span v-if="isChild" class="button btn_register" :style="{color: isActived }" @click="onCancel">취소</span>
-          <span class="button btn_register" :style="{color: isActived }" @click="onSubmit">등록</span>
+          <span
+            v-if="isChild"
+            class="button btn_register"
+            :style="{ color: isActived }"
+            @click="onCancel"
+            >취소</span
+          >
+          <span
+            class="button btn_register"
+            :style="{ color: isActived }"
+            @click="onSubmit"
+            >등록</span
+          >
         </div>
       </div>
     </div>
@@ -38,7 +56,7 @@ export default {
   props: {
     postId: String,
     parentId: Number,
-    isChild: Boolean
+    isChild: Boolean,
   },
   data() {
     return {
@@ -49,78 +67,73 @@ export default {
         password: "",
         text: "",
         isDeleted: false,
-        isLiked: false
+        isLiked: false,
       },
-      isActived: ''
-    }
+      isActived: "",
+    };
   },
   created() {
     console.log("CommentEnroll.vue created() ::: ", this.comment);
     console.log("props parentId ::: ", this.parentId);
-    
   },
   watch: {
-      'comment.text' () {
-          if (this.comment.text.length > 0) this.isActived = '#32cd32'
-          else this.isActived = ''
-      }
+    "comment.text"() {
+      if (this.comment.text.length > 0) this.isActived = "#32cd32";
+      else this.isActived = "";
+    },
   },
   methods: {
     onSubmit(event) {
-      // console.log('111 : ', this.comment)
-      event.preventDefault();
-      // console.log('111.2222 : ', this.comment)
-      if (this.$utils.isEmpty(this.comment.text) || this.$utils.isEmpty(this.comment.author) || this.$utils.isEmpty(this.comment.password)) {
-          this.$alert("필드값을 모두 채워주세요")
-          return
-      }
+      // let payload = this.comment;
       let vueThis = this;
-      // let tmp = new Object(this.comment)
-      console.log("222 :: ", this.comment)
+      event.preventDefault();
+      if (
+        this.$utils.isEmpty(this.comment.text) ||
+        this.$utils.isEmpty(this.comment.author) ||
+        this.$utils.isEmpty(this.comment.password)
+      ) {
+        this.$alert("필드값을 모두 채워주세요");
+        return;
+      }
+
       this.$axios
         .post(this.$url + "/api/v1/comments", this.comment, {})
         .then((response) => {
           console.log("댓글 등록 성공 ::: ", response);
+          console.log("등록된 댓글 :: ", response.data);
+          // 댓글 pk인 id를 설정해준다.
+          let payload = response.data;
+          payload.isLiked = false;
+          payload.modifiedDate = this.$utils.getDateFormat(payload.modifiedDate)
+          vueThis.$emit("new-comment", payload);
           // 페이지 리로딩 없이 재사용하기 때문에 초기화 필요
-          // let payload = vueThis.comment;
-          // console.log("333 :: ", payload)
-          // vueThis.$emit("new-comment", payload);
           this.comment = {
-            parentId: "0",
+            parentId: this.parentId === undefined ? "0" : this.parentId,
             postId: this.postId,
             author: "",
             password: "",
             text: "",
-            isDeleted: false,
-            isLiked : false
+            isDeleted: false
           };
-          // console.log('444 ::: ', payload)
-          vueThis.$emit("new-comment");
         })
         .catch((error) => {
           console.log("댓글 등록 실패", error);
         });
-        // init
-        // console.log('555 :: ', tmp)
-        this.comment.author = '',
-        this.comment.password = '',
-        this.comment.text = '',
-        this.isActived = false
     },
-    onCancel () {
-        this.$emit("onCancel")
-    }
+    onCancel() {
+      this.$emit("onCancel");
+    },
   },
 };
 </script>
 <style>
 .input_box {
-    margin-right: 5px;
-    outline: none;
-    border:0;
-    border-radius: 6px;
-    padding-left: 5px;
-    background-color: #f5f5f5;
+  margin-right: 5px;
+  outline: none;
+  border: 0;
+  border-radius: 6px;
+  padding-left: 5px;
+  background-color: #f5f5f5;
 }
 .CommentBox .comment_list + .CommentWriter {
   margin-top: 15px;
