@@ -48,7 +48,8 @@ export default {
         author: "",
         password: "",
         text: "",
-        isDeleted: false
+        isDeleted: false,
+        isLiked: false
       },
       isActived: ''
     }
@@ -66,17 +67,24 @@ export default {
   },
   methods: {
     onSubmit(event) {
+      // console.log('111 : ', this.comment)
       event.preventDefault();
+      // console.log('111.2222 : ', this.comment)
       if (this.$utils.isEmpty(this.comment.text) || this.$utils.isEmpty(this.comment.author) || this.$utils.isEmpty(this.comment.password)) {
           this.$alert("필드값을 모두 채워주세요")
           return
       }
       let vueThis = this;
+      // let tmp = new Object(this.comment)
+      console.log("222 :: ", this.comment)
       this.$axios
         .post(this.$url + "/api/v1/comments", this.comment, {})
         .then((response) => {
           console.log("댓글 등록 성공 ::: ", response);
           // 페이지 리로딩 없이 재사용하기 때문에 초기화 필요
+          // let payload = vueThis.comment;
+          // console.log("333 :: ", payload)
+          // vueThis.$emit("new-comment", payload);
           this.comment = {
             parentId: "0",
             postId: this.postId,
@@ -84,15 +92,18 @@ export default {
             password: "",
             text: "",
             isDeleted: false,
+            isLiked : false
           };
+          // console.log('444 ::: ', payload)
           vueThis.$emit("new-comment");
         })
         .catch((error) => {
           console.log("댓글 등록 실패", error);
         });
         // init
+        // console.log('555 :: ', tmp)
         this.comment.author = '',
-        this.comment.paswword = '',
+        this.comment.password = '',
         this.comment.text = '',
         this.isActived = false
     },
