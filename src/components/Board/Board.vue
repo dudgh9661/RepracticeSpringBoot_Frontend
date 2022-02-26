@@ -66,6 +66,7 @@
                         @mouseover="handleHover(idx, true)"
                         @mouseleave="handleHover(idx, false)"
                         @click="download(file)"
+                        style="cursor:pointer;"
                       >
                         다운로드
                       </span>
