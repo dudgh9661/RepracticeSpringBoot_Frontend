@@ -17,6 +17,7 @@
                   </div>
                   <div class="board_info">
                     <span class="date">{{ boardData.date }}</span>
+                    <span class="count">조회 {{ boardData.viewCount }}</span>
                   </div>
                 </div>
               </div>
