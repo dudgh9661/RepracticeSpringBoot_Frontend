@@ -31,7 +31,10 @@ export default {
         { value: 'content', text: '내용'},
         { value: 'author', text: '작성자'}
       ],
-      postsList: []
+      postsList: [],
+      seletedPage : 0,
+      pageNumber: 0,
+      totalPage: 0
     }
   },
   methods: {
@@ -44,11 +47,24 @@ export default {
         return
       }
 
-      this.$axios.get(this.$url + `/api/v1/posts/search?searchType=${this.searchType}&keyword=${this.keyword}`)
+      this.$axios.get(this.$url + `/api/v1/posts/page/${this.seletedPage}/search?searchType=${this.searchType}&keyword=${this.keyword}`)
       .then( response => {
         console.log('clicksearch data : ', response)
-        this.postsList = response.data
-        vueThis.$emit('searchPost', this.postsList)
+        let data = response.data // 응답받은 data Object
+        console.log('keyword 검색 결과 ::: ', data)
+        this.postsList = data.postsList
+        this.currentPageNumber = data.currentPageNumber
+        this.totalPage = data.currentPageNumber
+        this.postsList.forEach( (item) => {
+              item.modifiedDate = this.$utils.getDateFormat(item.modifiedDate)
+        })
+        // nav.vue -> BoardList.vue로 emit
+        let payload = {
+          postsList: this.postsList,
+          currentPageNumber : this.currentPageNumber,
+          totalPage: this.totalPage
+        }
+        vueThis.$emit('searchPost', payload)
       }).catch( error => {
         console.log('clickSearch() 작동 실패 ', error)
         vueThis.$alert('검색에 실패했습니다. 관리자에게 문의해주세요.')
