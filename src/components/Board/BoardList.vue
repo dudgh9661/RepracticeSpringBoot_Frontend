@@ -6,6 +6,7 @@
       responsive
       :items="postsList"
       :fields="fields"
+      :head-variant="'light'"
       hover
       @row-clicked="onClick"
       id="my-table"
