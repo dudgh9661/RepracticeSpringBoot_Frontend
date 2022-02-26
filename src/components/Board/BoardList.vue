@@ -12,7 +12,7 @@
       small
     >
       <template #table-colgroup="scope">
-        <col
+        <col 
           v-for="field in scope.fields"
           :key="field.key"
           :style="getCss(field.key)"
@@ -55,12 +55,13 @@ export default {
       sortBy: "id",
       sortDesc: false,
       fields: [
-        { key: "id", label: "번호" },
-        { key: "title", label: "제목" },
-        { key: "author", label: "작성자" },
-        { key: "createdDate", label: "작성일" },
-        { key: "liked", label: "좋아요" },
-        { key: "update", label: "" },
+        { key: "id", label: "번호", class: 'text-center'},
+        { key: "title", label: "제목", class: 'text-center'},
+        { key: "author", label: "작성자", class: 'text-center'},
+        { key: "createdDate", label: "작성일", class: 'text-center'},
+        { key: "liked", label: "좋아요", class: 'text-center'},
+        { key: "viewCount", label: "조회수", class: 'text-center'},
+        { key: "update", label: "", class: 'text-center'},
       ],
 
       postsList: [],
@@ -173,13 +174,14 @@ export default {
         css.width = "30%";
       } else if (key === "author") {
         css.width = "20%";
-        css.variant = "success";
       } else if (key === "createdDate") {
         css.width = "15%";
       } else if (key === "liked") {
         css.width = "5%";
       } else if (key === "update") {
         css.width = "10%";
+      } else if (key === "viewCount") {
+        css.width = "8%"
       }
       return css;
     },
