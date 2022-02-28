@@ -19,17 +19,9 @@
           :style="getCss(field.key)"
         />
       </template>
-      <template #cell(update)="row">
-        <b-button
-          size="sm"
-          style="background: #006400; border: 0; outline: 0"
-          :to="{ name: 'BoardUpdate', params: { id: row.item.id } }"
-          >게시물 수정</b-button
-        >
-      </template>
     </b-table>
     <div>
-      <b-button class="enroll_button" href="/enroll">게시물 등록</b-button>
+      <b-button class="enroll_button" href="/enroll">글쓰기</b-button>
     </div>
     <div>
       <b-pagination
@@ -62,7 +54,6 @@ export default {
         { key: "createdDate", label: "작성일", class: 'text-center'},
         { key: "liked", label: "좋아요", class: 'text-center'},
         { key: "viewCount", label: "조회수", class: 'text-center'},
-        { key: "update", label: "", class: 'text-center'},
       ],
 
       postsList: [],
