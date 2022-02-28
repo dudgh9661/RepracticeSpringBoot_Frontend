@@ -49,6 +49,7 @@
   background: transparent;
   border: 0;
   outline: 0;
+  color: black;
   /* vertical-align: top; */
 }
 .CommentBox .comment_option .comment_tab .comment_refresh_button:before {

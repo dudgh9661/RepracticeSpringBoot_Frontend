@@ -67,7 +67,7 @@
                         @mouseover="handleHover(idx, true)"
                         @mouseleave="handleHover(idx, false)"
                         @click="download(file)"
-                        style="cursor:pointer;"
+                        style="cursor: pointer"
                       >
                         다운로드
                       </span>
@@ -81,8 +81,16 @@
                       style="cursor: pointer"
                       @click="onClickLiked()"
                     >
-                      <b-icon v-if="isLiked === false" icon="heart" variant="danger"></b-icon
-                      ><b-icon v-else-if="isLiked" icon="heart-fill" variant="danger"></b-icon
+                      <b-icon
+                        v-if="isLiked === false"
+                        icon="heart"
+                        variant="danger"
+                      ></b-icon
+                      ><b-icon
+                        v-else-if="isLiked"
+                        icon="heart-fill"
+                        variant="danger"
+                      ></b-icon
                       ><span
                         style="
                           padding: 0px 5px 0px 2px;
@@ -96,6 +104,17 @@
                   <Comments :postId="this.boardId"></Comments>
                 </div>
                 <div class="ArticleBottomBtns">
+                  <div class="left_area">
+                    <b-button class="BaseButton BaseButton--skinGray size_default BaseButton__txt"
+                    :to="{ name: 'BoardUpdate', params: { id: this.boardId } }">
+                        수정
+                    </b-button>
+                    <b-button class="BaseButton BaseButton--skinGray size_default BaseButton__txt" @click="onClickDelete" type="delete">삭제</b-button>
+                    <board-delete 
+                      v-if="clickDeleteButton"
+                      :post="this.boardData"
+                    ></board-delete>
+                  </div>
                   <div class="right_area">
                     <a href="/"
                       ><span
@@ -117,8 +136,10 @@
 
 <script>
 import Comments from "./Comments.vue";
+import BoardDelete from "./BoardDelete.vue"
+
 export default {
-  components: { Comments },
+  components: { Comments, BoardDelete },
 
   data() {
     return {
@@ -128,6 +149,7 @@ export default {
       filesUrl: [],
       isHovered: [],
       isLiked: false,
+      clickDeleteButton: false
     };
   },
   created() {
@@ -240,7 +262,15 @@ export default {
           });
       }
     },
-  },
+    /*
+     * 함수명 : onDelete
+     * 설명 : 게시글을 삭제한다.
+     */
+    onClickDelete (event) {
+      event.preventDefault();
+      this.clickDeleteButton = !this.clickDeleteButton
+    }
+  }
 };
 </script>
 <style scoped>
@@ -436,7 +466,7 @@ div {
   float: right;
 }
 .BaseButton {
-  margin: 15px;
+  margin-top: 15px;
   margin-bottom: 50px;
   display: inline-block;
   border-radius: 6px;
@@ -453,9 +483,36 @@ div {
 .BaseButton.size_default {
   min-width: 46px;
   height: 36px;
+  /* margin-left: 10px; */
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 36px;
+}
+.ArticleBottomBtns .left_area {
+  float: left;
+}
+.BaseButton.size_default {
+  min-width: 46px;
+  height: 36px;
   margin-left: 10px;
   padding: 0 12px;
   font-size: 13px;
   line-height: 36px;
+}
+.BaseButton.size_default {
+  min-width: 46px;
+  height: 36px;
+  margin-left: 10px;
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 36px;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+.btn {
+  margin-bottom: 10px;
+  
 }
 </style>

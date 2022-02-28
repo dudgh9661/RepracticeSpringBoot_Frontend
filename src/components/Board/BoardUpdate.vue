@@ -80,14 +80,12 @@
       </div>
       <b-button @click="clearFiles" class="mr-2">파일 지우기</b-button>
       <b-button type="submit" variant="primary">수정</b-button>
-      <b-button @click="onDelete" type="delete" variant="danger">삭제</b-button>
       <b-button href="/">취소</b-button>
     </b-form>
   </div>
 </template>
 
 <script>
-import utils from "@/utils/utils.js";
 
 export default {
   name: "BoardUpdate",
@@ -189,37 +187,6 @@ export default {
           vueThis.$alert(errorMessage, null, "error");
           vueThis.boardData.password = "";
         });
-    },
-    /*
-     * 함수명 : onDelete
-     * 설명 : 게시글을 삭제한다.
-     */
-    onDelete(event) {
-      event.preventDefault();
-      let vueThis = this;
-      if (utils.isEmpty(this.boardData.password)) {
-        this.$alert("비밀번호가 입력되지 않았습니다.");
-        return;
-      }
-
-      let data = {
-        password: this.boardData.password,
-      };
-
-      this.$confirm("정말 삭제하실건가요?").then(() => {
-        this.$axios
-          .post(this.$url + `/api/v1/posts/${this.boardData.id}`, data, {})
-          .then(() => {
-            console.log("게시판 삭제 성공");
-            window.location.href = "/";
-          })
-          .catch((error) => {
-            console.log("게시판 삭제 실패", error);
-            let errorMessage = error.response.data.message;
-            vueThis.$alert(errorMessage, null, "error");
-            vueThis.boardData.password = "";
-          });
-      });
     },
     /*
      * 함수명 : clearFiles
