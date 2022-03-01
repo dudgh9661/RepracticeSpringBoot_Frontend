@@ -5,7 +5,6 @@
       id="my-table"
       fixed
       responsive
-      sticky-header
       hover
       small
       :items="postsList"
