@@ -2,15 +2,18 @@
   <div>
     <navigation @searchKeyword="getSearchResult"> </navigation>
     <b-table
+      id="my-table"
       fixed
       responsive
+      sticky-header
+      hover
+      small
       :items="postsList"
       :fields="fields"
       :head-variant="'light'"
-      hover
+      :sort-by.sync="sortBy"
+      :sort-desc.sync="sortDesc"
       @row-clicked="onClick"
-      id="my-table"
-      small
     >
       <template #table-colgroup="scope">
         <col 
@@ -45,15 +48,15 @@ export default {
   },
   data() {
     return {
-      sortBy: "id",
+      sortBy: "",
       sortDesc: false,
       fields: [
-        { key: "id", label: "번호", class: 'text-center'},
-        { key: "title", label: "제목", class: 'text-center'},
-        { key: "author", label: "작성자", class: 'text-center'},
-        { key: "createdDate", label: "작성일", class: 'text-center'},
-        { key: "liked", label: "좋아요", class: 'text-center'},
-        { key: "viewCount", label: "조회수", class: 'text-center'},
+        { key: "id", label: "번호", class: 'text-center sort-default'},
+        { key: "title", label: "제목", class: 'text-center sort-default'},
+        { key: "author", label: "작성자", class: 'text-center sort-default'},
+        { key: "createdDate", label: "작성일", class: 'text-center b-table-sort-icon-date', sortable: true},
+        { key: "liked", label: "좋아요", class: 'text-center b-table-sort-icon-liked', sortable: true},
+        { key: "viewCount", label: "조회수", class: 'text-center b-table-sort-icon-view', sortable: true},
       ],
 
       postsList: [],
@@ -62,6 +65,9 @@ export default {
       totalElement: 0,
       keyword: "",
       searchType: "",
+      transProps: {
+        name: 'flip-list'
+      }
     };
   },
   computed: {
@@ -216,5 +222,18 @@ export default {
   border: 0;
   background: #a6a6a6;
   outline: none;
+}
+.sort-default {
+  cursor: pointer;
+}
+.b-table-sort-icon-date {
+  /* background-color: red !important; */
+  background-position-x: 63% !important;
+}
+.b-table-sort-icon-liked {
+  background-position-x: 85% !important;
+}
+.b-table-sort-icon-view {
+  background-position-x: 70% !important;
 }
 </style>
