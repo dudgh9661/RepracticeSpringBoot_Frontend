@@ -61,24 +61,19 @@
           multiple
           class="mt-3"
         >
-          <template v-slot:file-name="{ names }">
-            <b-badge
-              v-for="(name, idx) in names"
-              :key="idx"
-              variant="dark"
-              class="ml-1"
-              >{{ name }}</b-badge
-            >
-          </template>
         </b-form-file>
       </b-form-group>
-      <div v-if="oldFile.length > 0" class="mt-3">
-        업로드된 파일
-          <div v-for="(file, idx) in oldFile" :key="idx">
-            <b>{{ file.name }}</b>
-          </div>
+      <div>업로드된 파일 목록</div>
+      <div
+        v-for="(file, idx) in transFiles"
+        :key="idx"
+        variant="dark"
+        class="ml-1"
+      >
+        <b-badge>{{ file.name }}</b-badge>
+        <b-icon icon="x" style="color: red" @click="deleteFile(file)"></b-icon>
       </div>
-      <b-button @click="clearFiles" class="mr-2">파일 지우기</b-button>
+      <b-button @click="clearFiles" class="mr-2">파일 모두 지우기</b-button>
       <b-button type="submit" variant="primary">수정</b-button>
       <b-button href="/">취소</b-button>
     </b-form>
@@ -86,7 +81,6 @@
 </template>
 
 <script>
-
 export default {
   name: "BoardUpdate",
   data() {
@@ -101,7 +95,26 @@ export default {
       },
       newFile: [],
       oldFile: [],
+      transFiles: [],
     };
+  },
+  watch: {
+    newFile(newVal) {
+      console.log("newFile newVal : ", newVal);
+      console.log("newFile  : ", this.newFile);
+      for (let i = 0; i < newVal.length; i++) {
+        this.transFiles.push(newVal[i]);
+      }
+    }
+    // newFile: function (newVal, oldVal) {
+    //   console.log("old IN newFile", oldVal);
+    //   console.log("new IN newFile: ", newVal);
+    //   for (let i = 0; i < newVal.length; i++) {
+    //     console.log("새로 들어온 파일 " + i + " : ", newVal[i]);
+    //     // vue의 변경감지를 유지하기 위해 $set을 이용한다.
+    //     this.$set(this.oldFile, this.oldFile.length, newVal[i]);
+    //   }
+    // },
   },
   created() {
     this.url = this.$url + `/api/v1/posts/${this.boardId}`;
@@ -118,7 +131,7 @@ export default {
 
         // 1. 기존에 있던 파일들을 Blob을 이용해 File 객체로 만든다.
         // 2. 만들어진 File 객체를 oldFile에 넣어 초기화 시킨다.
-        let fileList = res.data.files
+        let fileList = res.data.files;
         for (let i = 0; i < fileList.length; i++) {
           this.$axios
             .get(this.$url + `/api/v1/posts/download/${fileList[i].id}`, {
@@ -130,8 +143,10 @@ export default {
               });
               console.log("파일 데이터 받아오기 성공 ::: ", blob);
               // vue의 변경감지를 유지하기 위해 $set을 이용한다.
-              vueThis.oldFile.push(new File([blob], fileList[i].originFileName));
-              console.log(vueThis.oldFile)
+              vueThis.transFiles.push(
+                new File([blob], fileList[i].originFileName)
+              );
+              console.log(vueThis.oldFile);
             })
             .catch((error) => {
               console.log("파일 이미지 불러오기 실패 ::: ", error);
@@ -142,18 +157,6 @@ export default {
       .catch(function () {
         console.log("게시판 업데이트 페이지에 쓸 정보 불러오기 실패");
       });
-  },
-  watch: {
-    // 새로 업로드할 파일들을 oldFile에 넣는다.
-    newFile: function (newVal, oldVal) {
-      console.log('old IN newFile', oldVal);
-      console.log('new IN newFile: ', newVal);
-      for (let i = 0; i < newVal.length; i++) {
-        console.log('새로 들어온 파일 ' + i + ' : ', newVal[i]);
-        // vue의 변경감지를 유지하기 위해 $set을 이용한다.
-        this.$set(this.oldFile, this.oldFile.length, newVal[i]);
-      }
-    }
   },
   methods: {
     /*
@@ -170,9 +173,12 @@ export default {
       let formData = new FormData();
       formData.append("data", blob);
 
-      for (let i = 0; i < this.oldFile.length; i++) {
-        formData.append("file", this.oldFile[i]);
+      for (let i = 0; i < this.transFiles.length; i++) {
+        formData.append("file", this.transFiles[i]);
       }
+      // for (let i = 0; i < this.oldFile.length; i++) {
+      //   formData.append("file", this.oldFile[i]);
+      // }
 
       this.$axios
         .put(this.$url + `/api/v1/posts/${this.boardId}`, formData, {})
@@ -196,6 +202,17 @@ export default {
       this.$refs["file-input"].reset();
       this.newFile = [];
       this.oldFile = [];
+      this.transFiles = [];
+    },
+    /*
+     * 함수명 : deleteFile
+     * 설명 : 업로드 된 파일 1개를 삭제한다.
+     */
+    deleteFile(file) {
+      this.transFiles = this.transFiles.filter(
+        (transFile) => transFile.name !== file.name
+      );
+      console.log("deleteFile => ", this.transFiles);
     },
   },
 };
