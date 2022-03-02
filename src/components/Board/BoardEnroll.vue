@@ -40,12 +40,14 @@
 
       <b-form-group id="input-group-6" label="파일" label-for="input-content">
         <b-form-file v-model="files" accept="image/*" placeholder="이미지 파일만 업로드 가능합니다" multiple class="mt-3">
-          <template v-slot:file-name="{names}">
-            <b-badge v-for="(name,idx) in names" :key="idx" variant="dark" class="ml-1">{{name}}</b-badge>
-          </template>
         </b-form-file>
       </b-form-group>
       
+      <div>업로드된 파일 목록</div>
+      <div v-for="(file,idx) in transFiles" :key="idx" variant="dark" class="ml-1">
+        <b-badge >{{file.name}}</b-badge>
+        <b-icon icon="x" style="color:red;" @click="deleteFile(file)"></b-icon>
+      </div>
       <b-button type="submit" variant="primary">등록</b-button>
       <b-button href="/">취소</b-button>
     </b-form>
@@ -63,8 +65,18 @@ export default {
             password: '',
             content: ''
           },
-          files: []
+          files: [],
+          transFiles: []
         }
+    },
+    watch: {
+      files (newVal) {
+        console.log('files newVal : ', newVal)
+        console.log('files  : ',  this.files)
+        for (let i = 0; i < newVal.length; i++) {
+          this.transFiles.push(newVal[i]);
+        }
+      }
     },
     methods: {
         // 게시글 전송 함수
@@ -81,10 +93,12 @@ export default {
           formData.append('data', blob)
           
           //file 여러개를 보낸다.
-          for (let i = 0; i < this.files.length; i++) {
-            formData.append('file', this.files[i])
+          for (let i = 0; i < this.transFiles.length; i++) {
+            formData.append('file', this.transFiles[i])
           }
-          // formData.append('file', this.file)
+          // for (let i = 0; i < this.files.length; i++) {
+          //   formData.append('file', this.files[i])
+          // }
             
           this.$axios.post(this.$url + '/api/v1/posts', formData, {
           }).then( response => {
@@ -94,6 +108,10 @@ export default {
           }).catch( function(error) {
             console.log('게시판 글 등록 실패', error)
           })
+        },
+        deleteFile (file) {
+          this.transFiles = this.transFiles.filter(transFile => transFile.name !== file.name);
+          console.log('deleteFile => ', this.transFiles)
         }
     }
 }
