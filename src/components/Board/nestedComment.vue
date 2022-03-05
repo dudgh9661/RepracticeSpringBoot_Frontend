@@ -99,6 +99,7 @@ export default {
     },
     onClickLiked(comment) {
       console.log("onClickLiked comment ::: ", comment);
+      let vueThis = this;
       comment.isLiked = !comment.isLiked;
       if (comment.isLiked === true) {
         this.$axios
@@ -113,6 +114,7 @@ export default {
               .then((res) => {
                 console.log("좋아요 버튼 get ::: ", res);
                 comment.liked = res.data.liked;
+                vueThis.$emit('add-comment-liked', comment)
               })
               .catch((err) => {
                 console.log(
@@ -135,6 +137,7 @@ export default {
               .get(this.$url + `/api/v1/comments/like/${comment.id}`)
               .then((res) => {
                 comment.liked = res.data.liked;
+                vueThis.$emit('delete-comment-liked', comment)
               })
               .catch((err) => {
                 console.log(

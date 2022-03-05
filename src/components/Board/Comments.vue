@@ -115,6 +115,8 @@
                 :isDeleted="child.isDeleted"
                 :postId="postId"
                 @delete-comment="deleteComment()"
+                @add-comment-liked="addNestedCommentLiked"
+                @delete-comment-liked="deleteNestedCommentLiked"
               >
               </nested-comment>
             </div>
@@ -140,7 +142,7 @@ export default {
   components: { nestedComment, CommentEnroll, CommentDelete },
   props: {
     postId: String,
-    likedCommentList: Array
+    likedCommentList: Array,
   },
   data() {
     return {
@@ -148,15 +150,15 @@ export default {
       isOpen: false,
       openIdx: null,
       openDelete: false,
-      openDeleteIdx: null
+      openDeleteIdx: null,
     };
   },
   created() {
-    console.log('created Comments', this.$parent.$data.likedCommentList)
-    this.initComment();    
+    console.log("created Comments", this.$parent.$data.likedCommentList);
+    this.initComment();
   },
-  mounted()  {
-    console.log('mounted Comments', this.likedCommentList)
+  mounted() {
+    console.log("mounted Comments", this.likedCommentList);
   },
   computed: {
     getCommentLength() {
@@ -170,21 +172,22 @@ export default {
   },
   methods: {
     initComment() {
-      console.log('props likedCommentList ::: ', this.likedCommentList)
+      console.log("props likedCommentList ::: ", this.likedCommentList);
       this.getCommentList();
     },
     getCommentList() {
+      console.log("getCommentList() ::: ", this.likedCommentList);
       this.commentList = [];
       this.$axios
         .get(this.$url + "/api/v1/comments/" + this.postId, {})
         .then((response) => {
           this.isOpen = false;
           let commentListData = response.data;
-          // this.$set에서 사용할 comment index. 
+          // this.$set에서 사용할 comment index.
           // i로 this.$set을 셋팅할 경우, 0:댓글 1,2:대댓글 3:댓글 인경우 0->3으로
           // 즉, 2,3번 index가 빈 값으로 들어가게 됨
           // this.$set( , 0, ) -> this.$set( , 3, ) -> 2,3번 index가 empty로 자동으로 박힘
-          let commentIdx = 0 
+          let commentIdx = 0;
           // 댓글부터 셋팅해야, 그것의 Children으로 push 할 수 있으므로 정렬한다.
           // commentListData = commentListData.sort(function (a, b) {
           //   return a.parentId - b.parentId;
@@ -194,24 +197,29 @@ export default {
             if (comment.parentId === 0) {
               // 댓글
               comment.modifiedDate = utils.getDateFormat(comment.modifiedDate);
-              console.log('comment 정보 : ', comment);
-              console.log('좋아요 여부 : ', this.getIsLiked(comment))
+              console.log("comment 정보 : ", comment);
+              console.log("좋아요 여부 : ", this.getIsLiked(comment));
               comment.isLiked = this.getIsLiked(comment); // 좋아요 클릭 상태
-              this.$set(this.commentList, commentIdx++, { comment, children: [] }); // 댓글 idx 관리
-              console.log('댓글 ::: ', this.commentList)
+              this.$set(this.commentList, commentIdx++, {
+                comment,
+                children: [],
+              }); // 댓글 idx 관리
+              console.log("댓글 ::: ", this.commentList);
             } else {
               // 대댓글
               for (let j = 0; j < this.commentList.length; j++) {
                 if (this.commentList[j].comment.id === comment.parentId) {
-                  comment.modifiedDate = utils.getDateFormat(comment.modifiedDate);
-                  console.log('대댓글 comment 정보 : ', comment);
-                  console.log('좋아요 여부 : ', this.getIsLiked(comment))
+                  comment.modifiedDate = utils.getDateFormat(
+                    comment.modifiedDate
+                  );
+                  console.log("대댓글 comment 정보 : ", comment);
+                  console.log("좋아요 여부 : ", this.getIsLiked(comment));
                   comment.isLiked = this.getIsLiked(comment);
                   this.commentList[j].children.push(comment);
                   break;
                 }
               }
-              console.log('대댓글 ::: ', this.commentList)
+              console.log("대댓글 ::: ", this.commentList);
             }
           }
           this.openIdx = null;
@@ -235,11 +243,12 @@ export default {
     onClickLiked(comment) {
       console.log("onClickLiked comment ::: ", comment);
       comment.isLiked = !comment.isLiked;
+      let vueThis = this;
       if (comment.isLiked === true) {
         this.$axios
           .post(this.$url + `/api/v1/comments/like/${comment.id}`, {
             ip: this.$ip,
-            postId: this.postId
+            postId: this.postId,
           })
           .then(() => {
             console.log("좋아요 버튼 클릭 : " + comment.isLiked);
@@ -248,6 +257,7 @@ export default {
               .then((res) => {
                 console.log("좋아요 버튼 get ::: ", res);
                 comment.liked = res.data.liked;
+                vueThis.likedCommentList.push({ id: comment.id }); // 좋아요 버튼이 눌린 신규 comment 추가
               })
               .catch((err) => {
                 console.log(
@@ -262,7 +272,7 @@ export default {
       } else if (comment.isLiked === false) {
         this.$axios
           .post(this.$url + `/api/v1/comments/unlike/${comment.id}`, {
-            ip: this.$ip
+            ip: this.$ip,
           })
           .then(() => {
             console.log("좋아요 취소 버튼 클릭 : " + comment.isLiked);
@@ -270,6 +280,11 @@ export default {
               .get(this.$url + `/api/v1/comments/like/${comment.id}`)
               .then((res) => {
                 comment.liked = res.data.liked;
+                let deleteIdx = vueThis.likedCommentList.findIndex(
+                  (element) => element.id === comment.id
+                );
+                console.log("deleteIdx ::: ", deleteIdx);
+                vueThis.likedCommentList.splice(deleteIdx, 1); // 좋아요 버튼이 눌린 신규 comment 추가
               })
               .catch((err) => {
                 console.log(
@@ -312,18 +327,28 @@ export default {
     deleteComment() {
       this.openDelete = false;
     },
-    getIsLiked (comment) {
+    getIsLiked(comment) {
       if (this.$utils.isEmpty(this.likedCommentList)) {
-        console.log('likedCommentList가 비었습니다')
-        return false
+        console.log("likedCommentList가 비었습니다");
+        return false;
       }
       for (let i = 0; i < this.likedCommentList.length; i++) {
         let getComment = this.likedCommentList[i];
         if (getComment.id === comment.id) return true;
       }
-      console.log('getIsLiked() false : ' + comment.id, this.likedCommentList)
+      console.log("getIsLiked() false : " + comment.id, this.likedCommentList);
       return false;
-    }
+    },
+    addNestedCommentLiked(comment) {
+      console.log('addNestedCommentLiked ::: ', comment)
+      this.likedCommentList.push({ id: comment.id }); // 좋아요 버튼이 눌린 신규 comment 추가
+    },
+    deleteNestedCommentLiked(comment) {
+      console.log('deleteNestedCommentLiked ::: ', comment)
+      let deleteIdx = this.likedCommentList.findIndex((element) => element.id === comment.id);
+      console.log("deleteIdx ::: ", deleteIdx);
+      this.likedCommentList.splice(deleteIdx, 1); // 좋아요 버튼이 눌린 신규 comment 추가
+    },
   },
 };
 </script>
