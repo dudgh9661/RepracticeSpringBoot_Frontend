@@ -1,6 +1,6 @@
 <template>
   <div>
-    <navigation @searchKeyword="getSearchResult"> </navigation>
+    <navigation @searchKeyword="getSearchResult" @goHome="getBoardList"> </navigation>
     <b-table
       id="my-table"
       fixed
@@ -15,7 +15,7 @@
       @row-clicked="onClick"
     >
       <template #table-colgroup="scope">
-        <col 
+        <col
           v-for="field in scope.fields"
           :key="field.key"
           :style="getCss(field.key)"
@@ -23,7 +23,7 @@
       </template>
     </b-table>
     <div>
-      <b-button class="enroll_button" href="/enroll">글쓰기</b-button>
+      <b-button class="enroll_button" @click="clickWrite">글쓰기</b-button>
     </div>
     <div>
       <b-pagination
@@ -107,7 +107,11 @@ export default {
     },
   },
   created() {
-    this.$axios
+    this.getBoardList();
+  },
+  methods: {
+    getBoardList () {
+      this.$axios
       .get(this.$url + `/api/v1/posts/page/${this.currentPage - 1}`, {
         // headers: { 'Content-Type': 'application/json' }
       })
@@ -123,13 +127,12 @@ export default {
         });
         console.log("BoardList.vue created() ::::", response);
       });
-  },
-  methods: {
+    },
     onClick(item) {
       let id = item.id;
       //1. id를 '/board' url로 넘겨준다.
       console.log("onClick 함수 호출");
-      window.location.href = `/board/${id}`;
+      this.$router.push(`/board/${id}`)
     },
     getSearchResult(payload) {
       console.log("keyword로 검색한 결과 => ", payload);
@@ -182,6 +185,10 @@ export default {
       }
       return css;
     },
+    clickWrite (event) {
+      event.preventDefault();
+      this.$router.push('/enroll')
+    }
   },
 };
 </script>

@@ -77,6 +77,7 @@ export default {
   props: {
     comment: Object,
     isDeleted: Boolean,
+    postId: String
   },
   data() {
     return {
@@ -86,6 +87,7 @@ export default {
   created() {
     console.log("nestedComment isDeleted ::: " + this.isDeleted);
     console.log("nestedComment comment ::: ", this.comment);
+    console.log("nested postId : ", this.postId)
   },
   methods: {
     onClickDelete() {
@@ -100,7 +102,10 @@ export default {
       comment.isLiked = !comment.isLiked;
       if (comment.isLiked === true) {
         this.$axios
-          .post(this.$url + `/api/v1/comments/like/${comment.id}`, {})
+          .post(this.$url + `/api/v1/comments/like/${comment.id}`, {
+            ip: this.$ip,
+            postId: this.postId
+          })
           .then(() => {
             console.log("좋아요 버튼 클릭 : " + comment.isLiked);
             this.$axios
@@ -121,7 +126,9 @@ export default {
           });
       } else if (comment.isLiked === false) {
         this.$axios
-          .delete(this.$url + `/api/v1/comments/like/${comment.id}`, {})
+          .post(this.$url + `/api/v1/comments/unlike/${comment.id}`, {
+            ip: this.$ip
+          })
           .then(() => {
             console.log("좋아요 버튼 클릭 : " + comment.isLiked);
             this.$axios

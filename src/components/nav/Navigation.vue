@@ -1,18 +1,38 @@
 <template>
   <div>
     <b-navbar sticky type="dark" variant="success">
-      <b-navbar-brand><b-icon icon="emoji-smile-fill" animation="cylon"></b-icon>&nbsp;&nbsp;&nbsp;Board Project</b-navbar-brand>
+      <b-navbar-brand
+        ><b-icon icon="emoji-smile-fill" animation="cylon"></b-icon
+        >&nbsp;&nbsp;&nbsp;Board Project</b-navbar-brand
+      >
       <b-navbar-nav>
-        <b-nav-item href="/">Home</b-nav-item>
+        <b-nav-item @click="goHome">Home</b-nav-item>
       </b-navbar-nav>
 
       <b-navbar-nav>
         <div>
-          <b-form-select v-model="searchType" :options="options" size="sm" class="mr-2"></b-form-select>
+          <b-form-select
+            v-model="searchType"
+            :options="options"
+            size="sm"
+            class="mr-2"
+          ></b-form-select>
         </div>
         <b-nav-form>
-          <b-form-input size="sm" class="mr-sm-2" placeholder="Search" v-model="keyword">{{keyword}}</b-form-input>
-          <b-button size="sm" class="my-2 my-sm-0" type="submit" @click="clickSearch"><b-icon icon="search"></b-icon></b-button>
+          <b-form-input
+            size="sm"
+            class="mr-sm-2"
+            placeholder="Search"
+            v-model="keyword"
+            >{{ keyword }}</b-form-input
+          >
+          <b-button
+            size="sm"
+            class="my-2 my-sm-0"
+            type="submit"
+            @click="clickSearch"
+            ><b-icon icon="search"></b-icon
+          ></b-button>
         </b-nav-form>
       </b-navbar-nav>
     </b-navbar>
@@ -21,39 +41,41 @@
 
 <script>
 export default {
-  name: 'Navigation',
-  data () {
+  name: "Navigation",
+  data() {
     return {
-      searchType: 'title',
-      keyword: '',
+      searchType: "title",
+      keyword: "",
       options: [
-        { value: 'title', text: '제목'},
-        { value: 'content', text: '내용'},
-        { value: 'author', text: '작성자'}
+        { value: "title", text: "제목" },
+        { value: "content", text: "내용" },
+        { value: "author", text: "작성자" },
       ],
       postsList: [],
-      totalElement: 0
-    }
+      totalElement: 0,
+    };
   },
   methods: {
-    clickSearch (event) {
-      event.preventDefault()
-      console.log('clickSearch() 실행')
-      let vueThis = this
+    clickSearch(event) {
+      event.preventDefault();
+      console.log("clickSearch() 실행");
+      let vueThis = this;
       if (this.$utils.isEmpty(this.keyword)) {
-        vueThis.$alert('검색어를 입력해주세요')
-        return
+        vueThis.$alert("검색어를 입력해주세요");
+        return;
       }
       let payload = {
         keyword: this.keyword,
-        searchType: this.searchType
-      }
-      this.$emit('searchKeyword', payload)
-    }
-  }
-}
+        searchType: this.searchType,
+      };
+      this.$emit("searchKeyword", payload);
+    },
+    goHome(event) {
+      event.preventDefault();
+      this.$emit("goHome");
+    },
+  },
+};
 </script>
 
-<style>
-
-</style>
+<style></style>
