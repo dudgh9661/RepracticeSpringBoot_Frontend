@@ -49,7 +49,7 @@
         <b-icon icon="x" style="color:red;" @click="deleteFile(file)"></b-icon>
       </div>
       <b-button type="submit" variant="primary">등록</b-button>
-      <b-button href="/">취소</b-button>
+      <b-button @click="clickCancel">취소</b-button>
     </b-form>
   </div>
 </template>
@@ -104,7 +104,7 @@ export default {
           }).then( response => {
             console.log('게시판 글 등록 성공', response)              
             //2. 홈으로 redirect
-            window.location.href = '/'
+            this.$router.push('/')
           }).catch( function(error) {
             console.log('게시판 글 등록 실패', error)
           })
@@ -112,6 +112,10 @@ export default {
         deleteFile (file) {
           this.transFiles = this.transFiles.filter(transFile => transFile.name !== file.name);
           console.log('deleteFile => ', this.transFiles)
+        },
+        clickCancel (event) {
+          event.preventDefault();
+          this.$router.push('/')
         }
     }
 }

@@ -5,7 +5,8 @@ const utils = {
         return newDate
     },
     isEmpty : (input) => {
-        if (input === undefined) return true
+        if (input === null) return true
+        else if (input === undefined) return true
         else if (input === '') return true
         else if (input.length === 0) return true
         return false

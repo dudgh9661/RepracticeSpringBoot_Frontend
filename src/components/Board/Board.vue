@@ -101,28 +101,42 @@
                       >
                     </span>
                   </span>
-                  <Comments :postId="this.boardId"></Comments>
+                  <Comments
+                    v-if="loadedLikedCommentsList"
+                    :postId="boardId"
+                    :likedCommentList="likedCommentList"
+                  ></Comments>
                 </div>
                 <div class="ArticleBottomBtns">
                   <div class="left_area">
-                    <b-button class="BaseButton BaseButton--skinGray size_default BaseButton__txt"
-                    :to="{ name: 'BoardUpdate', params: { id: this.boardId } }">
-                        수정
+                    <b-button
+                      class="BaseButton BaseButton--skinGray size_default BaseButton__txt"
+                      :to="{
+                        name: 'BoardUpdate',
+                        params: { id: this.boardId },
+                      }"
+                    >
+                      수정
                     </b-button>
-                    <b-button class="BaseButton BaseButton--skinGray size_default BaseButton__txt" @click="onClickDelete" type="delete">삭제</b-button>
-                    <board-delete 
+                    <b-button
+                      class="BaseButton BaseButton--skinGray size_default BaseButton__txt"
+                      @click="onClickDelete"
+                      type="delete"
+                      >삭제</b-button
+                    >
+                    <board-delete
                       v-if="clickDeleteButton"
                       :post="this.boardData"
                     ></board-delete>
                   </div>
                   <div class="right_area">
-                    <a href="/"
-                      ><span
-                        class="BaseButton BaseButton--skinGray size_default BaseButton__txt"
-                      >
-                        홈으로
-                      </span></a
+                    <span
+                      @click="goHome"
+                      class="BaseButton BaseButton--skinGray size_default BaseButton__txt"
+                      style="cursor: pointer"
                     >
+                      홈으로
+                    </span>
                   </div>
                 </div>
               </div>
@@ -136,7 +150,7 @@
 
 <script>
 import Comments from "./Comments.vue";
-import BoardDelete from "./BoardDelete.vue"
+import BoardDelete from "./BoardDelete.vue";
 
 export default {
   components: { Comments, BoardDelete },
@@ -149,51 +163,20 @@ export default {
       filesUrl: [],
       isHovered: [],
       isLiked: false,
-      clickDeleteButton: false
+      clickDeleteButton: false,
+      likedCommentList: [],
+      loadedLikedCommentsList: false,
     };
   },
   created() {
-    this.id = this.$route.params.id;
-    this.$axios
-      .get(this.$url + `/api/v1/posts/${this.boardId}`, {})
-      .then((res) => {
-        this.boardData = res.data;
-        this.boardData.date = this.$utils.getDateFormat(res.data.date);
-        this.files = this.boardData.files;
-        for (let i = 0; i < this.files.length; i++) {
-          this.$set(this.isHovered, i, false);
-        }
-        console.log("get posts data ::: ", this.$data);
-        console.log("uploaded files ::: ", this.files);
-        // get file src URL
-        for (let i = 0; i < this.files.length; i++) {
-          this.$axios
-            .get(this.$url + `/api/v1/posts/download/${this.files[i].id}`, {
-              responseType: "blob",
-            })
-            .then((res) => {
-              let blob = new Blob([res.data], {
-                type: res.headers["content-type"],
-              });
-              console.log("파일 데이터 받아오기 성공 ::: ", blob);
-              // file download 링크 생성
-              let link = document.createElement("a");
-              link.href = window.URL.createObjectURL(blob);
-              this.filesUrl.push(link);
-              window.URL.revokeObjectURL(blob);
-            })
-            .catch((error) => {
-              console.log("파일 이미지 불러오기 실패 ::: ", error);
-              alert("파일 이미지 불러오기를 실패했습니다. 다시 시도해주세요.");
-            });
-        }
-        console.log("filesUrl ::: ", this.filesUrl);
-      })
-      .catch((error) => {
-        console.log("게시물을 불러오지 못했습니다.", error);
-      });
+    console.log("created Board");
+    this.init();
   },
   methods: {
+    async init() {
+      await this.getLikedInfo();
+      this.getPostInfo();
+    },
     /*
      * 함수명 : download
      * 설명 : 파일 다운로드를 실행한다.
@@ -221,7 +204,9 @@ export default {
       this.isLiked = !this.isLiked;
       if (this.isLiked === true) {
         this.$axios
-          .post(this.$url + `/api/v1/posts/like/${this.boardId}`, {})
+          .post(this.$url + `/api/v1/posts/like/${this.boardId}`, {
+            ip: this.$ip,
+          })
           .then(() => {
             console.log("좋아요 버튼 클릭 : " + this.isLiked);
             this.$axios
@@ -242,7 +227,9 @@ export default {
           });
       } else if (this.isLiked === false) {
         this.$axios
-          .delete(this.$url + `/api/v1/posts/like/${this.boardId}`, {})
+          .post(this.$url + `/api/v1/posts/unlike/${this.boardId}`, {
+            ip: this.$ip,
+          })
           .then(() => {
             console.log("좋아요 버튼 클릭 : " + this.isLiked);
             this.$axios
@@ -266,11 +253,83 @@ export default {
      * 함수명 : onDelete
      * 설명 : 게시글을 삭제한다.
      */
-    onClickDelete (event) {
+    onClickDelete(event) {
       event.preventDefault();
-      this.clickDeleteButton = !this.clickDeleteButton
-    }
-  }
+      this.clickDeleteButton = !this.clickDeleteButton;
+    },
+    /*
+     * 함수명 : getLikedInfo
+     * 설명 : 게시글의 좋아요 여부, 댓글의 좋아요 여부를 가져온다.
+     */
+    getLikedInfo() {
+      // ip와 boardId를 이용해 해당 사용자가 이 게시글을 좋아요 눌렀는지 확인한다.
+      return this.$axios
+        .get(
+          this.$url + `/api/v1/posts/likeStatus/${this.boardId}/ip/${this.$ip}`
+        )
+        .then((res) => {
+          console.log("getLikedInfo() data ::: ", res);
+          this.isLiked = res.data.isLikedPost;
+          this.likedCommentList = res.data.likedCommentList;
+          console.log("likedComments setting 끝", this.likedCommentList);
+          this.loadedLikedCommentsList = true;
+        })
+        .catch((error) => {
+          console.error("ip를 이용한 like init error ::: ", error);
+        });
+    },
+    /*
+     * 함수명 : getPostInfo
+     * 설명 : 게시글의 정보를 불러온다.
+     */
+    getPostInfo() {
+      this.id = this.$route.params.id;
+      return this.$axios
+        .get(this.$url + `/api/v1/posts/${this.boardId}`, {})
+        .then((res) => {
+          this.boardData = res.data;
+          this.boardData.date = this.$utils.getDateFormat(res.data.date);
+          this.files = this.boardData.files;
+          for (let i = 0; i < this.files.length; i++) {
+            this.$set(this.isHovered, i, false);
+          }
+          console.log("get posts data ::: ", this.$data);
+          console.log("uploaded files ::: ", this.files);
+          // get file src URL
+          for (let i = 0; i < this.files.length; i++) {
+            this.$axios
+              .get(this.$url + `/api/v1/posts/download/${this.files[i].id}`, {
+                responseType: "blob",
+              })
+              .then((res) => {
+                let blob = new Blob([res.data], {
+                  type: res.headers["content-type"],
+                });
+                console.log("파일 데이터 받아오기 성공 ::: ", blob);
+                // file download 링크 생성
+                let link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                this.filesUrl.push(link);
+                window.URL.revokeObjectURL(blob);
+              })
+              .catch((error) => {
+                console.log("파일 이미지 불러오기 실패 ::: ", error);
+                alert(
+                  "파일 이미지 불러오기를 실패했습니다. 다시 시도해주세요."
+                );
+              });
+          }
+          console.log("filesUrl ::: ", this.filesUrl);
+        })
+        .catch((error) => {
+          console.log("게시물을 불러오지 못했습니다.", error);
+        });
+    },
+    goHome(event) {
+      event.preventDefault();
+      this.$router.push("/");
+    },
+  },
 };
 </script>
 <style scoped>
@@ -513,6 +572,5 @@ a {
 }
 .btn {
   margin-bottom: 10px;
-  
 }
 </style>

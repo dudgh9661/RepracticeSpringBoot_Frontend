@@ -36,7 +36,7 @@ export default {
           .post(this.$url + `/api/v1/posts/${this.post.id}`, data, {})
           .then(() => {
             console.log("게시판 삭제 성공");
-            window.location.href = "/";
+            this.$router.push('/');
           })
           .catch((error) => {
             console.log("게시판 삭제 실패", error);

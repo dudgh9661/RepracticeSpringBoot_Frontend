@@ -75,7 +75,7 @@
       </div>
       <b-button @click="clearFiles" class="mr-2">파일 모두 지우기</b-button>
       <b-button type="submit" variant="primary">수정</b-button>
-      <b-button href="/">취소</b-button>
+      <b-button @click="clickCancel">취소</b-button>
     </b-form>
   </div>
 </template>
@@ -182,12 +182,12 @@ export default {
 
       this.$axios
         .put(this.$url + `/api/v1/posts/${this.boardId}`, formData, {})
-        .then(function () {
+        .then(() => {
           console.log("게시판 업데이트 데이터 전송 성공");
           //2. 홈으로 redirect
-          window.location.href = "/";
+          this.$router.push('/');
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.log("게시판 업데이트 실패");
           let errorMessage = error.response.data.message;
           vueThis.$alert(errorMessage, null, "error");
@@ -214,6 +214,10 @@ export default {
       );
       console.log("deleteFile => ", this.transFiles);
     },
+    clickCancel (event) {
+      event.preventDefault();
+      this.$router.push('/');
+    }
   },
 };
 </script>
