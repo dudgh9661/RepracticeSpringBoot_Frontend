@@ -5,7 +5,11 @@
         <span class="comment_title">댓글</span>
         <span class="comment_count">{{ getCommentLength }}</span>
         <span class="comment_tab">
-          <button type="button" class="comment_refresh_button" @click="getCommentList()">
+          <button
+            type="button"
+            class="comment_refresh_button"
+            @click="getCommentList()"
+          >
             <b-icon icon="arrow-clockwise"></b-icon>
           </button>
         </span>
@@ -35,12 +39,27 @@
                   </div>
                 </div>
                 <div class="comment_info_box">
-                  <div class="like_board"
-                  style="cursor: pointer"
-                  @click="onClickLiked(comments.comment)">
-                    <b-icon v-if="comments.comment.isLiked === false" icon="heart" variant="danger"></b-icon
-                    ><b-icon v-else-if="comments.comment.isLiked" icon="heart-fill" variant="danger"></b-icon
-                      ><span style="padding: 0px 5px 0px 2px; color: black; cursor: default;"
+                  <div
+                    class="like_board"
+                    style="cursor: pointer"
+                    @click="onClickLiked(comments.comment)"
+                  >
+                    <b-icon
+                      v-if="comments.comment.isLiked === false"
+                      icon="heart"
+                      variant="danger"
+                    ></b-icon
+                    ><b-icon
+                      v-else-if="comments.comment.isLiked"
+                      icon="heart-fill"
+                      variant="danger"
+                    ></b-icon
+                    ><span
+                      style="
+                        padding: 0px 5px 0px 2px;
+                        color: black;
+                        cursor: default;
+                      "
                       >좋아요 {{ comments.comment.liked }}</span
                     >
                   </div>
@@ -94,6 +113,7 @@
                 :key="childIdx"
                 :comment="child"
                 :isDeleted="child.isDeleted"
+                :postId="postId"
                 @delete-comment="deleteComment()"
               >
               </nested-comment>
@@ -120,6 +140,7 @@ export default {
   components: { nestedComment, CommentEnroll, CommentDelete },
   props: {
     postId: String,
+    likedCommentList: Array
   },
   data() {
     return {
@@ -131,20 +152,27 @@ export default {
     };
   },
   created() {
-    this.getCommentList();
+    console.log('created Comments', this.$parent.$data.likedCommentList)
+    this.initComment();    
+  },
+  mounted()  {
+    console.log('mounted Comments', this.likedCommentList)
   },
   computed: {
-    getCommentLength () {
+    getCommentLength() {
       let cnt = this.commentList.length;
-      
+
       for (let i = 0; i < this.commentList.length; i++) {
-        cnt += this.commentList[i].children.length
-      
+        cnt += this.commentList[i].children.length;
       }
       return cnt;
-    }
+    },
   },
   methods: {
+    initComment() {
+      console.log('props likedCommentList ::: ', this.likedCommentList)
+      this.getCommentList();
+    },
     getCommentList() {
       this.commentList = [];
       this.$axios
@@ -152,23 +180,38 @@ export default {
         .then((response) => {
           this.isOpen = false;
           let commentListData = response.data;
-          commentListData = commentListData.sort(function (a, b) {
-            return a.parentId - b.parentId;
-          });
+          // this.$set에서 사용할 comment index. 
+          // i로 this.$set을 셋팅할 경우, 0:댓글 1,2:대댓글 3:댓글 인경우 0->3으로
+          // 즉, 2,3번 index가 빈 값으로 들어가게 됨
+          // this.$set( , 0, ) -> this.$set( , 3, ) -> 2,3번 index가 empty로 자동으로 박힘
+          let commentIdx = 0 
+          // 댓글부터 셋팅해야, 그것의 Children으로 push 할 수 있으므로 정렬한다.
+          // commentListData = commentListData.sort(function (a, b) {
+          //   return a.parentId - b.parentId;
+          // });
           for (let i = 0; i < commentListData.length; i++) {
             let comment = commentListData[i];
             if (comment.parentId === 0) {
+              // 댓글
               comment.modifiedDate = utils.getDateFormat(comment.modifiedDate);
-              comment.isLiked = false // 좋아요 클릭 상태
-              this.$set(this.commentList, i, { comment, children: [] });
+              console.log('comment 정보 : ', comment);
+              console.log('좋아요 여부 : ', this.getIsLiked(comment))
+              comment.isLiked = this.getIsLiked(comment); // 좋아요 클릭 상태
+              this.$set(this.commentList, commentIdx++, { comment, children: [] }); // 댓글 idx 관리
+              console.log('댓글 ::: ', this.commentList)
             } else {
+              // 대댓글
               for (let j = 0; j < this.commentList.length; j++) {
                 if (this.commentList[j].comment.id === comment.parentId) {
                   comment.modifiedDate = utils.getDateFormat(comment.modifiedDate);
-                  comment.isLiked = false
+                  console.log('대댓글 comment 정보 : ', comment);
+                  console.log('좋아요 여부 : ', this.getIsLiked(comment))
+                  comment.isLiked = this.getIsLiked(comment);
                   this.commentList[j].children.push(comment);
+                  break;
                 }
               }
+              console.log('대댓글 ::: ', this.commentList)
             }
           }
           this.openIdx = null;
@@ -182,7 +225,6 @@ export default {
         });
     },
     onClick(comment, idx) {
-      console.log("test click row comment data -> ", comment, idx);
       this.isOpen = true;
       this.openIdx = idx;
     },
@@ -191,11 +233,14 @@ export default {
       this.openDeleteIdx = idx;
     },
     onClickLiked(comment) {
-      console.log('onClickLiked comment ::: ', comment)
+      console.log("onClickLiked comment ::: ", comment);
       comment.isLiked = !comment.isLiked;
       if (comment.isLiked === true) {
         this.$axios
-          .post(this.$url + `/api/v1/comments/like/${comment.id}`, {})
+          .post(this.$url + `/api/v1/comments/like/${comment.id}`, {
+            ip: this.$ip,
+            postId: this.postId
+          })
           .then(() => {
             console.log("좋아요 버튼 클릭 : " + comment.isLiked);
             this.$axios
@@ -216,9 +261,11 @@ export default {
           });
       } else if (comment.isLiked === false) {
         this.$axios
-          .delete(this.$url + `/api/v1/comments/like/${comment.id}`, {})
+          .post(this.$url + `/api/v1/comments/unlike/${comment.id}`, {
+            ip: this.$ip
+          })
           .then(() => {
-            console.log("좋아요 버튼 클릭 : " + comment.isLiked);
+            console.log("좋아요 취소 버튼 클릭 : " + comment.isLiked);
             this.$axios
               .get(this.$url + `/api/v1/comments/like/${comment.id}`)
               .then((res) => {
@@ -232,35 +279,53 @@ export default {
               });
           })
           .catch((err) => {
-            console.log("좋아요 버튼 클릭 실패 ", err);
+            console.log("좋아요 취소 버튼 클릭 실패 ", err);
           });
       }
     },
-    newComment (payload) {
-      console.log('newComment', payload)
-      let comment = payload
-      this.$set(this.commentList, this.commentList.length, { comment, children: [] });
-      console.log('update commentList ::: ', this.commentList)
+    newComment(payload) {
+      console.log("newComment", payload);
+      let comment = payload;
+      this.$set(this.commentList, this.commentList.length, {
+        comment,
+        children: [],
+      });
+      console.log("update commentList ::: ", this.commentList);
     },
-    newCommentChild (payload) {
-      let comment = payload
-      console.log('newCommentChild', comment)
+    newCommentChild(payload) {
+      let comment = payload;
+      console.log("newCommentChild", comment);
       for (let i = 0; i < this.commentList.length; i++) {
         if (comment.parentId === this.commentList[i].comment.id) {
-          console.log('child11 ::: ', this.commentList[i].children)
-          this.$set(this.commentList[i].children, this.commentList[i].children.length, comment);
+          console.log("child11 ::: ", this.commentList[i].children);
+          this.$set(
+            this.commentList[i].children,
+            this.commentList[i].children.length,
+            comment
+          );
           this.isOpen = false;
-          console.log('child22 ::: ', this.commentList[i].children)
+          console.log("child22 ::: ", this.commentList[i].children);
           return;
         }
       }
     },
-    deleteComment () {
-      this.openDelete = false
+    deleteComment() {
+      this.openDelete = false;
+    },
+    getIsLiked (comment) {
+      if (this.$utils.isEmpty(this.likedCommentList)) {
+        console.log('likedCommentList가 비었습니다')
+        return false
+      }
+      for (let i = 0; i < this.likedCommentList.length; i++) {
+        let getComment = this.likedCommentList[i];
+        if (getComment.id === comment.id) return true;
+      }
+      console.log('getIsLiked() false : ' + comment.id, this.likedCommentList)
+      return false;
     }
   },
 };
 </script>
 
-<style src="@/assets/styles/comments.css">
-</style>
+<style src="@/assets/styles/comments.css"></style>
