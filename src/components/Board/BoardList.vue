@@ -52,6 +52,7 @@ export default {
       fields: [
         { key: "id", label: "번호", class: 'text-center sort-default'},
         { key: "title", label: "제목", class: 'text-center sort-default'},
+        { key: "commentsLength", label: "댓글", class: 'text-center sort-default'},
         { key: "author", label: "작성자", class: 'text-center sort-default'},
         { key: "createdDate", label: "작성일", class: 'text-center b-table-sort-icon-date', sortable: true},
         { key: "liked", label: "좋아요", class: 'text-center b-table-sort-icon-liked', sortable: true},
@@ -121,7 +122,6 @@ export default {
         console.log("response data In BoardList.vue created() ::: ", data);
         this.postsList = data.postsList;
         this.totalElement = data.totalElement;
-
         this.postsList.forEach((item) => {
           item.createdDate = this.$utils.getDateFormat(item.createdDate);
         });
@@ -182,6 +182,8 @@ export default {
         css.width = "10%";
       } else if (key === "viewCount") {
         css.width = "8%"
+      } else if (key === "commentsLength") {
+        css.width = "5%"
       }
       return css;
     },
