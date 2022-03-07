@@ -41,18 +41,34 @@
               </div>
             </span>
             <span class="comment_info_date">{{ comment.modifiedDate }}</span>
+            <b-badge
+              style="cursor: pointer"
+              class="comment_info_button"
+              variant="primary"
+              @click.stop="onClickUpdate()"
+            >수정</b-badge>
             <b-icon
-              style="cursor: pointer; margin-left: px"
+              style="cursor: pointer; margin-left: 2px"
               icon="trash-fill"
               size="sm"
               @click="onClickDelete()"
               >삭제</b-icon
             >
-
+            <comment-update
+                v-show="isOpen"
+                v-if="openCommentUpdateIdx === true"
+                :commentProps="comment"
+                :isNested="true"
+                @onCancel="openCommentUpdateIdx = false"
+                @update-comment="updatedComment"
+            >
+            </comment-update>
             <!-- 댓글 삭제 -->
             <comment-delete
+              style="padding-left: 205px"
               v-if="openDelete"
               @delete-comment="deleteComment()"
+              @onCancel="openDelete = false"
               :comment="comment"
             >
             </comment-delete>
@@ -69,29 +85,32 @@
 </template>
 
 <script>
+import CommentUpdate from "./CommentUpdate.vue";
 import CommentDelete from "./CommentDelete.vue";
 
 export default {
   name: "nestedComment",
-  components: { CommentDelete },
+  components: { CommentUpdate, CommentDelete },
   props: {
     comment: Object,
     isDeleted: Boolean,
-    postId: String
+    postId: String,
   },
   data() {
     return {
       openDelete: false,
+      openCommentUpdateIdx: ''
     };
   },
   created() {
     console.log("nestedComment isDeleted ::: " + this.isDeleted);
     console.log("nestedComment comment ::: ", this.comment);
-    console.log("nested postId : ", this.postId)
+    console.log("nested postId : ", this.postId);
   },
   methods: {
     onClickDelete() {
-      this.openDelete = !this.openDelete;
+      this.openDelete = true;
+      this.openCommentUpdateIdx = false
     },
     deleteComment() {
       this.comment.isDeleted = true;
@@ -105,7 +124,7 @@ export default {
         this.$axios
           .post(this.$url + `/api/v1/comments/like/${comment.id}`, {
             ip: this.$ip,
-            postId: this.postId
+            postId: this.postId,
           })
           .then(() => {
             console.log("좋아요 버튼 클릭 : " + comment.isLiked);
@@ -114,7 +133,7 @@ export default {
               .then((res) => {
                 console.log("좋아요 버튼 get ::: ", res);
                 comment.liked = res.data.liked;
-                vueThis.$emit('add-comment-liked', comment)
+                vueThis.$emit("add-comment-liked", comment);
               })
               .catch((err) => {
                 console.log(
@@ -129,7 +148,7 @@ export default {
       } else if (comment.isLiked === false) {
         this.$axios
           .post(this.$url + `/api/v1/comments/unlike/${comment.id}`, {
-            ip: this.$ip
+            ip: this.$ip,
           })
           .then(() => {
             console.log("좋아요 버튼 클릭 : " + comment.isLiked);
@@ -137,7 +156,7 @@ export default {
               .get(this.$url + `/api/v1/comments/like/${comment.id}`)
               .then((res) => {
                 comment.liked = res.data.liked;
-                vueThis.$emit('delete-comment-liked', comment)
+                vueThis.$emit("delete-comment-liked", comment);
               })
               .catch((err) => {
                 console.log(
@@ -150,6 +169,18 @@ export default {
             console.log("좋아요 버튼 클릭 실패 ", err);
           });
       }
+    },
+    onClickUpdate () {
+      this.isOpen = true;
+      this.openDelete = false;
+      this.openCommentUpdateIdx = true;
+      this.openDeleteIdx = -1
+    },
+    updatedComment(payload) {
+      this.isOpen = false;
+      this.openDelete = false;
+      this.openCommentUpdateIdx = false
+      console.log("updated 된 comment ::: ", payload);
     },
   },
 };

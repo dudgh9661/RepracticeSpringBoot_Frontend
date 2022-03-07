@@ -70,15 +70,23 @@
                     style="cursor: pointer"
                     class="comment_info_button"
                     variant="primary"
-                    @click="onClick(comments, idx)"
+                    @click.stop="onClick(comments, idx)"
                   >
                     댓글달기
                   </b-badge>
+                  <b-badge
+                    style="cursor: pointer; margin-left: 3px"
+                    class="comment_info_button"
+                    variant="primary"
+                    @click.stop="onClickUpdate(comments, idx)"
+                  >
+                    수정
+                  </b-badge>
                   <b-icon
-                    style="cursor: pointer; margin-left: px"
+                    style="cursor: pointer; margin-left: 3px"
                     icon="trash-fill"
                     size="sm"
-                    @click="onClickDelete(idx)"
+                    @click.stop="onClickDelete(idx)"
                     >삭제</b-icon
                   >
                 </div>
@@ -90,9 +98,11 @@
               </span>
               <!-- 댓글 삭제 -->
               <comment-delete
+                style="padding-left: 243px;"
                 v-if="openDeleteIdx === idx && openDelete"
                 :comment="comments.comment"
                 @delete-comment="deleteComment()"
+                @onCancel="openDelete = false"
               >
               </comment-delete>
               <!-- 대댓글 등록 -->
@@ -107,7 +117,16 @@
                 @onCancel="isOpen = false"
               >
               </comment-enroll>
-              <!-- 대댓글 등록 -->
+              <!-- 댓글 수정 -->
+              <comment-update
+                v-show="isOpen"
+                v-if="openCommentUpdateIdx === idx"
+                :commentProps="comments.comment"
+                @onCancel="isOpen = false"
+                @update-comment="updatedComment"
+              >
+              </comment-update>
+              <!-- 대댓글 -->
               <nested-comment
                 v-for="(child, childIdx) in comments.children"
                 :key="childIdx"
@@ -134,12 +153,13 @@
 <script>
 import nestedComment from "./nestedComment.vue";
 import CommentEnroll from "./CommentEnroll.vue";
+import CommentUpdate from "./CommentUpdate.vue";
 import CommentDelete from "./CommentDelete.vue";
 import utils from "../../utils/utils.js";
 
 export default {
   name: "Comments",
-  components: { nestedComment, CommentEnroll, CommentDelete },
+  components: { nestedComment, CommentEnroll, CommentUpdate, CommentDelete },
   props: {
     postId: String,
     likedCommentList: Array,
@@ -151,6 +171,7 @@ export default {
       openIdx: null,
       openDelete: false,
       openDeleteIdx: null,
+      openCommentUpdateIdx: false,
     };
   },
   created() {
@@ -235,10 +256,20 @@ export default {
     onClick(comment, idx) {
       this.isOpen = true;
       this.openIdx = idx;
+      this.openCommentUpdateIdx = -1
+      this.openDeleteIdx = -1
+    },
+    onClickUpdate(comment, idx) {
+      this.isOpen = true;
+      this.openCommentUpdateIdx = idx;
+      this.openIdx = -1
+      this.openDeleteIdx = -1
     },
     onClickDelete(idx) {
-      this.openDelete = !this.openDelete;
+      this.openDelete = true;
       this.openDeleteIdx = idx;
+      this.openIdx = -1
+      this.openCommentUpdateIdx = -1
     },
     onClickLiked(comment) {
       console.log("onClickLiked comment ::: ", comment);
@@ -340,14 +371,22 @@ export default {
       return false;
     },
     addNestedCommentLiked(comment) {
-      console.log('addNestedCommentLiked ::: ', comment)
+      console.log("addNestedCommentLiked ::: ", comment);
       this.likedCommentList.push({ id: comment.id }); // 좋아요 버튼이 눌린 신규 comment 추가
     },
     deleteNestedCommentLiked(comment) {
-      console.log('deleteNestedCommentLiked ::: ', comment)
-      let deleteIdx = this.likedCommentList.findIndex((element) => element.id === comment.id);
+      console.log("deleteNestedCommentLiked ::: ", comment);
+      let deleteIdx = this.likedCommentList.findIndex(
+        (element) => element.id === comment.id
+      );
       console.log("deleteIdx ::: ", deleteIdx);
-      this.likedCommentList.splice(deleteIdx, 1); // 좋아요 버튼이 눌린 신규 comment 추가
+      this.likedCommentList.splice(deleteIdx, 1); // 좋아요 버튼이 한번더 눌린 comment 삭제
+    },
+    updatedComment(payload) {
+      this.isOpen = false;
+      this.openCommentUpdateIdx = -1
+      this.openIdx = -1
+      console.log("updated 된 comment ::: ", payload);
     },
   },
 };
