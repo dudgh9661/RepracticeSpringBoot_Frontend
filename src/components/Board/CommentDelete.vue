@@ -1,7 +1,11 @@
 <template>
   <div>
+    <b-icon icon="arrow-return-right" style="color: black;"></b-icon>
     <input class="comment_delete" v-model="password" type="password" placeholder="비밀번호를 입력해주세요"/>
-    <span class="comment_delete_confirm" @click="onDelete"><b-icon icon="check" style="color: red; padding-top: 5px;" font-scale="2"></b-icon></span>
+    <span class="comment_delete_confirm">
+      <b-icon icon="check" style="color: red; padding-top: 5px;" font-scale="2" @click.stop="onDelete"></b-icon>
+      <span style="color: black; padding-top: 5px" font-scale="2" @click.stop="onCancel">취소</span>
+    </span>
   </div>
 </template>
 
@@ -47,7 +51,11 @@ export default {
           });
       });
     },
-  },
+    onCancel () {
+      this.password = "";
+      this.$emit("onCancel");
+    }
+  }
 };
 </script>
 
