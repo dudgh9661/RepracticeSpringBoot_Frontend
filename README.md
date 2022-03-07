@@ -12,32 +12,9 @@
     + 파일 업로드 V
     + 댓글 V
     + 대댓글 V
-    + 추천
-    + 조회수 카운팅
-  + 페이징
-  + 게시글 검색
+    + 추천 V
+    + 조회수 카운팅 V
+  + 페이징 V
+  + 게시글 검색 V
   + 공지사항
-  + 정렬(추천별, 조회수별)
-
-### 프로젝트 구조
-```
-frontend/src
-    ├── App.vue
-    ├── components
-    │   └── Board
-    │       ├── Board.vue
-    │       ├── BoardEnroll.vue
-    │       ├── BoardList.vue
-    │       ├── BoardUpdate.vue
-    │       ├── CommentDelete.vue
-    │       ├── CommentEnroll.vue
-    │       ├── Comments.vue
-    │       └── nestedComment.vue
-    ├── main.js
-    ├── router
-    │   └── index.js
-    ├── utils
-    │   └── utils.js
-    └── views
-        └── Main.vue
-```
+  + 정렬(추천별, 조회수별) V
