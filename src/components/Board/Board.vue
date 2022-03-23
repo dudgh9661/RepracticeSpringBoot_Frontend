@@ -105,6 +105,7 @@
                     v-if="loadedLikedCommentsList"
                     :postId="boardId"
                     :likedCommentList="likedCommentList"
+                    :commentListData="boardData.commentList"
                   ></Comments>
                 </div>
                 <div class="ArticleBottomBtns">
@@ -165,7 +166,7 @@ export default {
       isLiked: false,
       clickDeleteButton: false,
       likedCommentList: [],
-      loadedLikedCommentsList: false,
+      loadedLikedCommentsList: false
     };
   },
   created() {
@@ -174,8 +175,8 @@ export default {
   },
   methods: {
     async init() {
+      await this.getPostInfo();
       await this.getLikedInfo();
-      this.getPostInfo();
     },
     /*
      * 함수명 : download
@@ -283,10 +284,11 @@ export default {
      * 설명 : 게시글의 정보를 불러온다.
      */
     getPostInfo() {
-      this.id = this.$route.params.id;
       return this.$axios
         .get(this.$url + `/api/v1/posts/${this.boardId}`, {})
         .then((res) => {
+          console.log('getPostInfo() ::: ', res)
+          this.id = this.$route.params.id;
           this.boardData = res.data;
           this.boardData.date = this.$utils.getDateFormat(res.data.date);
           this.files = this.boardData.files;
