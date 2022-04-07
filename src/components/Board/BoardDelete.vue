@@ -28,12 +28,14 @@ export default {
           return
       }
       let vueThis = this;
-      let data = {
+      let headers = {
         password: this.password,
       };
       this.$confirm("정말 삭제하실건가요?").then(() => {
         this.$axios
-          .post(this.$url + `/api/v1/posts/${this.post.id}`, data, {})
+          .delete(this.$url + `/api/v1/posts/${this.post.id}`, {
+            headers
+          })
           .then(() => {
             console.log("게시판 삭제 성공");
             this.$router.push('/');
